@@ -10,3 +10,4 @@ a.out
 # Ignorar ejecutables sin extensión que tú generes (específicamente):
 bisection_regula_falsi
 exercise1
+exercise2
