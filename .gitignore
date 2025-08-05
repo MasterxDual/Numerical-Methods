@@ -1,0 +1,11 @@
+.vscode
+
+# Ignorar archivos ejecutables comunes (sin extensión en Linux/macOS)
+a.out
+*.out
+*.exe
+*.o
+*.obj
+
+# Ignorar ejecutables sin extensión que tú generes (específicamente):
+bisection_regula_falsi
