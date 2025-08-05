@@ -1,0 +1,11 @@
+# Datos de convergencia - f(x) = x^10 - 1
+# Columna 1: Iteración
+# Columna 2: Error absoluto
+Iteracion	Error
+1			7.368614379220e-02
+2			1.865215178664e-02
+3			3.994169712947e-03
+4			8.263615936831e-04
+5			1.696964970549e-04
+6			3.479393218808e-05
+7			7.131749140243e-06
