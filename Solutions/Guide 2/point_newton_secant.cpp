@@ -3,56 +3,12 @@
 
 using namespace std;
 
-// Function g(x) in the fixed-point method
-// In the Netwon-Rapson method, f(x) is used; see the conceptual difference in a bibliography.
-double g(double x) {
-    return x * x - 2 * x + 1;  // Ejemplo: x² - 2x + 1
-}
-
-// Numerical derivative of g(x) using finite differences
-// In the Netwon-Rapson method, f'(x) is used; see the conceptual difference in a bibliography.
-double gprima(double x) {
-    return (g(x + 0.001) - g(x)) / 0.001;
-}
-
-// Function to calculate the error
-double calcular_error(double x_nuevo, double x_anterior, int error_type) {
-    if(error_type == 1) {
-        // Absolute error
-        return fabs(x_nuevo - x_anterior);
-    } else {
-        // Percentage error
-        return fabs((x_nuevo - x_anterior) / x_nuevo) * 100;
-    }
-}
-
-// Function to display results
-void mostrar_resultados(const char* metodo, double raiz, double error, int iteraciones) {
-    printf("La raiz aproximada es: %lf, con un error de %lf\n", raiz, error);
-    printf("Número de iteraciones: %d\n", iteraciones);
-    printf("La funcion evaluada en la raiz aproximada es igual a %lf\n", g(raiz));
-}
-
-// Function to verify convergence
-// This function checks if the method converges and if the function value at the root is close to zero
-void verificar_convergencia(const char* metodo, int iteraciones, double raiz, int max_iter) {
-    double valor_funcion = g(raiz);
-    
-    if(iteraciones < max_iter) {
-        if(fabs(valor_funcion) < 0.01) {
-            printf("✓ El método de %s CONVERGE correctamente.\n", metodo);
-            printf("  - Convergió en %d iteraciones (< %d)\n", iteraciones, max_iter);
-            printf("  - g(raiz) = %lf está cerca de 0\n", valor_funcion);
-        } else {
-            printf("⚠ El método converge en iteraciones pero g(raiz) = %lf NO está cerca de 0.\n", valor_funcion);
-            printf("  Posible problema: la raíz encontrada no es precisa.\n");
-        }
-    } else {
-        printf("✗ El método de %s NO CONVERGE.\n", metodo);
-        printf("  - Alcanzó el máximo de iteraciones (%d)\n", max_iter);
-        printf("  - g(raiz) = %lf\n", valor_funcion);
-    }
-}
+// Function prototypes
+double g(double x);
+double gprima(double x);
+double calculate_error(double new_x, double previous_x, int error_type);
+void show_results(const char* method, double root, double error, int iterations);
+void verify_convergence(const char* method, int iterations, double root, int max_iter);
 
 int main(int argc, char const *argv[]) {
     double x0, x1, x2, error, tolerance;
@@ -81,11 +37,11 @@ int main(int argc, char const *argv[]) {
                 }
             
                 x1 = g(x0);
-                error = calcular_error(x1, x0, error_type);
-                x0 = x1; // We update x0 for the next iteration
+                error = calculate_error(x1, x0, error_type);
+                x0 = x1; // We update x0 for the next iterationx_anterior
             } while(error > tolerance);
 
-            mostrar_resultados("punto fijo", x1, error, max_iterations);
+            show_results("punto fijo", x1, error, max_iterations);
             break;
 
         case 2:
@@ -101,12 +57,12 @@ int main(int argc, char const *argv[]) {
         
                 // We apply the Newton-Raphson formula
                 x1 = x0 - (g(x0) / gprima(x0));
-                error = calcular_error(x1, x0, error_type);
+                error = calculate_error(x1, x0, error_type);
                 x0 = x1; // We update x0 for the next iteration
             } while(error > tolerance && max_iterations < 10000);
         
-            mostrar_resultados("Newton-Raphson", x1, error, max_iterations);
-            verificar_convergencia("Newton-Raphson", max_iterations, x1, 10000);
+            show_results("Newton-Raphson", x1, error, max_iterations);
+            verify_convergence("Newton-Raphson", max_iterations, x1, 10000);
             break;
 
         case 3: 
@@ -119,14 +75,14 @@ int main(int argc, char const *argv[]) {
         
                 // We apply the secant method formula
                 x2 = x1 - ((g(x1) * (x1 - x0)) / (g(x1) - g(x0)));
-                error = calcular_error(x2, x1, error_type);
+                error = calculate_error(x2, x1, error_type);
         
                 x0 = x1; // We update x0 for the next iteration
                 x1 = x2; // We update x1 for the next iteration
             } while(error > tolerance && max_iterations < 10000);
         
-            mostrar_resultados("la secante", x2, error, max_iterations);
-            verificar_convergencia("la secante", max_iterations, x2, 10000);
+            show_results("la secante", x2, error, max_iterations);
+            verify_convergence("la secante", max_iterations, x2, 10000);
             break;
 
         default:
@@ -134,4 +90,57 @@ int main(int argc, char const *argv[]) {
     }
     
     return 0;
+}
+
+// Function definitions
+
+// Function g(x) in the fixed-point method
+// In the Netwon-Rapson method, f(x) is used; see the conceptual difference in a bibliography.
+double g(double x) {
+    return cos(sin(x));  // Ejemplo: x² - 2x + 1
+}
+
+// Numerical derivative of g(x) using finite differences
+// In the Netwon-Rapson method, f'(x) is used; see the conceptual difference in a bibliography.
+double gprima(double x) {
+    return (g(x + 0.001) - g(x)) / 0.001;
+}
+
+// Function to calculate the error
+double calculate_error(double new_x, double previous_x, int error_type) {
+    if(error_type == 1) {
+        // Absolute error
+        return fabs(new_x - previous_x);
+    } else {
+        // Percentage error
+        return fabs((new_x - previous_x) / new_x) * 100;
+    }
+}
+
+// Function to display results
+void show_results(const char* method, double root, double error, int iterations) {
+    printf("La raiz aproximada es: %lf, con un error de %lf\n", root, error);
+    printf("Número de iteraciones: %d\n", iterations);
+    printf("La funcion evaluada en la raiz aproximada es igual a %lf\n", g(root));
+}
+
+// Function to verify convergence
+// This function checks if the method converges and if the function value at the root is close to zero
+void verify_convergence(const char* method, int iterations, double root, int max_iter) {
+    double valor_funcion = g(root);
+    
+    if(iterations < max_iter) {
+        if(fabs(valor_funcion) < 0.01) {
+            printf("✓ El método de %s CONVERGE correctamente.\n", method);
+            printf("  - Convergió en %d iteraciones (< %d)\n", iterations, max_iter);
+            printf("  - g(raiz) = %lf está cerca de 0\n", valor_funcion);
+        } else {
+            printf("⚠ El método converge en iteraciones pero g(raiz) = %lf NO está cerca de 0.\n", valor_funcion);
+            printf("  Posible problema: la raíz encontrada no es precisa.\n");
+        }
+    } else {
+        printf("✗ El método de %s NO CONVERGE.\n", method);
+        printf("  - Alcanzó el máximo de iteraciones (%d)\n", max_iter);
+        printf("  - g(raiz) = %lf\n", valor_funcion);
+    }
 }
