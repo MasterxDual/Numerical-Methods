@@ -50,7 +50,7 @@ int main(int argc, char const *argv[]) {
                 max_iterations++;
         
                 // If the derivative is too small, it may lead to division by zero or slow convergence
-                if(gprima(x0) < 10e-4) {
+                if(fabs(gprima(x0)) < 10e-4) {
                     printf("La derivada es muy pequeña en la iteración %d\n", max_iterations);
                     exit(0);
                 }
