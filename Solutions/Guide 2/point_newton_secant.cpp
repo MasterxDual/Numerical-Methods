@@ -15,13 +15,13 @@ int main(int argc, char const *argv[]) {
     int max_iterations = 0, error_type, method;
 
     // X0 is the initial value from which the root is searched on the x axis, approaching with a straight line x increasingly closer to the root
-    printf("Ingrese el valor inicial x0 desde donde empezará a buscar la raíz");
+    printf("Enter the initial value x0 from where you will start searching for the root");
     scanf("%lf", &x0);
-    printf("Usted necesita el error porcentual o el absoluto? (1 para absoluto, 0 para porcentual): ");
+    printf("Do you need the percentage or absolute error? (1 for absolute, 0 for percentage): ");
     scanf("%d", &error_type);
-    printf("Ingrese la tolerancia");
+    printf("Enter the tolerance");
     scanf("%lf", &tolerance);
-    printf("Ingrese el tipo de metodo (1 para punto fijo, 2 para Newton-Raphson, 3 para secante): ");
+    printf("Enter the method type (1 for fixed point, 2 for Newton-Raphson, 3 for secant): ");
     scanf("%d", &method);
 
     switch(method) {
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
 
                 // If the slope of the curve at the point where it intersects the x line with the function is greater --> it is not possible to find the root in a reasonable time
                 if(fabs(gprima(x0)) >= 1) {
-                    printf("El método no converge en la iteracion %d\n", max_iterations);
+                    printf("The method does not converge in the iteration %d\n", max_iterations);
                     exit(0);
                 }
             
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[]) {
         
                 // If the derivative is too small, it may lead to division by zero or slow convergence
                 if(fabs(gprima(x0)) < 10e-4) {
-                    printf("La derivada es muy pequeña en la iteración %d\n", max_iterations);
+                    printf("The derivative is very small in the iteration %d\n", max_iterations);
                     exit(0);
                 }
         
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[]) {
 
         case 3: 
             // Secant method - needs a second initial point (must be close to the root, like x0)
-            printf("Ingrese un segundo valor inicial x1 para el método de la secante: ");
+            printf("Enter a second initial value x1 for the secant method: ");
             scanf("%lf", &x1);
             
             do {
@@ -86,7 +86,7 @@ int main(int argc, char const *argv[]) {
             break;
 
         default:
-            printf("Opción inválida. Seleccione 1, 2 o 3.\n");
+            printf("Invalid option. Select 1, 2 o 3.\n");
     }
     
     return 0;
@@ -119,9 +119,11 @@ double calculate_error(double new_x, double previous_x, int error_type) {
 
 // Function to display results
 void show_results(const char* method, double root, double error, int iterations) {
-    printf("La raiz aproximada es: %lf, con un error de %lf\n", root, error);
-    printf("Número de iteraciones: %d\n", iterations);
-    printf("La funcion evaluada en la raiz aproximada es igual a %lf\n", g(root));
+    printf("Aproximately root is: %.3lf, with an error of %.3lf\n", root, error);
+    printf("Number of iterations: %d\n", iterations);
+    if(method != "punto fijo") {
+        printf("Function evalutaed in the aproximately root is equal to %.3lf\n", g(root));
+    }
 }
 
 // Function to verify convergence
@@ -131,16 +133,16 @@ void verify_convergence(const char* method, int iterations, double root, int max
     
     if(iterations < max_iter) {
         if(fabs(valor_funcion) < 0.01) {
-            printf("✓ El método de %s CONVERGE correctamente.\n", method);
-            printf("  - Convergió en %d iteraciones (< %d)\n", iterations, max_iter);
-            printf("  - g(raiz) = %lf está cerca de 0\n", valor_funcion);
+            printf("✓ Method converges %s correctly.\n", method);
+            printf("  - Converged in %d iterations (< %d)\n", iterations, max_iter);
+            printf("  - f(root) = %.3lf is close to 0\n", valor_funcion);
         } else {
-            printf("⚠ El método converge en iteraciones pero g(raiz) = %lf NO está cerca de 0.\n", valor_funcion);
-            printf("  Posible problema: la raíz encontrada no es precisa.\n");
+            printf("⚠ Method converges in iterations but g(root) = %.3lf is NOT close to 0.\n", valor_funcion);
+            printf("  Possible issue: the root found is not accurate.\n");
         }
     } else {
-        printf("✗ El método de %s NO CONVERGE.\n", method);
-        printf("  - Alcanzó el máximo de iteraciones (%d)\n", max_iter);
-        printf("  - g(raiz) = %lf\n", valor_funcion);
+        printf("✗ Method %s don't converges.\n", method);
+        printf("  - Reached maximum number of iterations (%d).\n", max_iter);
+        printf("  - f(root) = %.3lf\n", valor_funcion);
     }
 }
