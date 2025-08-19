@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <stdlib.h>
+#include <cmath>
 
 // Now you can handle up to 50x50 matrixs
 #define MAX_SIZE 50  
@@ -71,8 +72,8 @@ bool read_array_file(const char* filename, double a[][MAX_SIZE+1], double b[], i
 }
 
 int main(int argc, char const *argv[]) {
-    int n;
-    double factor, product, sum;
+    int n, p;
+    double factor, product, sum, aux;
     
     // Defining arrays using the global MAX_SIZE
     double a[MAX_SIZE+1][MAX_SIZE+1], b[MAX_SIZE+1], X[MAX_SIZE+1];
@@ -86,13 +87,33 @@ int main(int argc, char const *argv[]) {
     printf("===============================\n");
     for(int i = 1; i <= n; i++) {
         for(int j = 1; j <= n; j++) {
-            printf("%6.2lf ", a[i][j]);
+            printf("%10.6lf ", a[i][j]);  // 10 espacios totales, 6 decimales
         }
-        printf("| %6.2lf\n", b[i]);
+        printf("| %10.6lf\n", b[i]);       // 10 espacios totales, 6 decimales
     }
     printf("\n");
-    // Walk the rows of the matrix (Eliminación Gaussiana)
+    // Walk the rows of the matrix (Gaussian elimination)
     for(int i = 1; i <= n-1; i++) {
+
+        // ¿What happens if a[i][i] is near zero?
+        // We'll use partial pivoting to avoid division by zero or numerical instability
+        p = i;
+        if(fabs(a[i][i]) < 1e-5) {
+            for(int l = i+1; l <= n; l++) {
+                if(fabs(a[l][i]) > fabs(a[p][i])) {
+                    p = l; // We find the row with the largest element in column i
+                }
+            }
+            for(int m = i; m <= n; m++) {
+                aux = a[p][m];
+                a[p][m] = a[i][m];
+                a[i][m] = aux; // Swap rows p and i
+            }
+            aux = b[p];
+            b[p] = b[i];
+            b[i] = aux; // Swap the independent term
+        }
+
         // Makes zero the elements below the diagonal in the current column
         for(int j = i+1; j <= n; j++) {
             factor = a[j][i] / a[i][i]; // Sin el signo negativo
