@@ -147,6 +147,8 @@ int main(int argc, char const *argv[]) {
         product = product * a[i][i];
     }
 
+    printf("The determinant of the matrix is: %lf\n", product);
+
     if(product == 0) {
         printf("The determinant of the matrix is zero, the system has no unique solution.\n");
         exit(0); // Exit with error code
