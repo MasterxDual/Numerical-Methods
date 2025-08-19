@@ -20,6 +20,35 @@
  *  */
 bool read_array_file(const char* filename, double a[][MAX_SIZE+1], double b[], int* n);
 
+
+/* The matrix to solve is:
+4x1 - x2 + 2x3 + 3x4 = 20
+0x1 -2x2 + 7x3 - 4x4 = -7
+0x1 + 0x2 + 6x3 + 5x4 = 4
+0x1 + 0x2 + 0x3 + 3x4 = 6
+
+In other terms: 
+A = | 4 -1  2  3 |
+    | 0 -2  7 -4 |
+    | 0  0  6  5 |
+    | 0  0  0  3 |
+b = | 20 |
+    | -7 |
+    |  4 |
+    |  6 |
+
+We'll apply Gaussian elimination with partial pivoting to solve the system of equations.
+
+The solution is:
+x1 = 3.0
+x2 = -4.0
+x3 = -1.0
+x4 = 2.0
+
+Determinant of A = -144.0
+
+*/
+
 int main(int argc, char const *argv[]) {
     int n, p;
     double factor, product, sum, aux;
