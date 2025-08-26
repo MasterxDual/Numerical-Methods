@@ -139,9 +139,18 @@ bool read_array_file(const char* filename, double a[][MAX_SIZE+1], double b[], i
     printf("✅ File '%s' opened\n\n", filename);
 
     // Count rows in file
-    int rows = 0;
+    /* int rows = 0;
     while((c = fgetc(fp)) != EOF) {
         if(c == '\n') {
+            rows++;
+        }
+    } */
+
+    // This alternative works better than the previous one
+    int rows = 0;
+    while(!feof(fp)) {
+        char buffer[1024];
+        if(fgets(buffer, sizeof(buffer), fp) != NULL) {
             rows++;
         }
     }
