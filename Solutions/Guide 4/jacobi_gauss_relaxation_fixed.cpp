@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <cmath>
 
-/* This file was created using the knowledge of my teacher of the university */
+/* This file have bug fixes done with Github Copilot in Gauss-Siedel and Relaxation Method. */
 
 // Now you can handle up to 50x50 matrixs
 #define MAX_SIZE 50  
@@ -118,7 +118,7 @@ int main(int argc, char const *argv[]) {
 
     // Verificación de diagonal dominante
     if (checkDiagonalDominance(a, n) != 0) {
-        printf("No se puede continuar con el método. La matriz tiene ceros en la diagonal. Se cierra el programa\n");
+        printf("The method cannot continue. The matrix has zeros on the diagonal. The program exits.");
         return 1;
     }
     printf("Verificación completada.\n");
@@ -256,19 +256,18 @@ void gaussSeidel(double a[][MAX_SIZE+1], double b[], double Xv[], double Xn[], i
     do {
         iterations++;
         for(int i = 1; i <= n; i++) {
-            sum = 0.0;
-            if(i == 1) {
-                for(int j = 2; j <= n; j++) {
-                    sum += a[i][j] * Xv[j];
-                }
-                Xn[i] = (b[i] - sum) / a[i][i];
-            }
+            sum = 0.0;  // Reset sum for each row
+            
+            // Sum elements before diagonal (using NEW values Xn)
             for(int j = 1; j <= i-1; j++) {
                 sum += a[i][j] * Xn[j];
             }
+            
+            // Sum elements after diagonal (using OLD values Xv)
             for(int j = i+1; j <= n; j++) {
                 sum += a[i][j] * Xv[j];
             }
+            
             Xn[i] = (b[i] - sum) / a[i][i];
         }
 
@@ -307,23 +306,23 @@ void relaxationMethod(double a[][MAX_SIZE+1], double b[], double Xv[], double Xn
     do {
         iterations++;
         for(int i = 1; i <= n; i++) {
-            sum = 0.0;
-            if(i == 1) {
-                for(int j = 2; j <= n; j++) {
-                    sum += a[i][j] * Xv[j];
-                }
-                Xn[i] = (b[i] - sum) / a[i][i];
-            }
+            sum = 0.0;  // Reset sum for each row
+            
+            // Sum elements before diagonal (using NEW values Xn)
             for(int j = 1; j <= i-1; j++) {
                 sum += a[i][j] * Xn[j];
             }
+            
+            // Sum elements after diagonal (using OLD values Xv)
             for(int j = i+1; j <= n; j++) {
                 sum += a[i][j] * Xv[j];
             }
-            Xn[i] = (b[i] - sum) / a[i][i];
-
-            // Only relaxation step
-            Xn[i] = (omega * Xn[i]) + ((1 - omega) * Xv[i]);
+            
+            // Calculate Gauss-Seidel step
+            double gauss_seidel = (b[i] - sum) / a[i][i];
+            
+            // Apply relaxation factor (SOR)
+            Xn[i] = omega * gauss_seidel + (1.0 - omega) * Xv[i];
         }
 
         new_error = computeError(Xn, Xv, n);
