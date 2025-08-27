@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <cmath>
 
-/* This file have bug fixes done with Github Copilot in Gauss-Siedel and Relaxation Method. */
+/* This file have bug fixes done with Github Copilot in Gauss-Siedel and Relaxation Method.
+    Also, It's fixed the print result function to show positive numbers when it shows a -0.0
+*/
 
 // Now you can handle up to 50x50 matrixs
 #define MAX_SIZE 50  
@@ -121,7 +123,8 @@ Matrix to solve:
     
 
     We'll apply Relaxation Method to solve the system of equations.
-    omega = 1.1
+
+    --> omega = 1.1
 
     ⚠️  Warning: The matrix is not diagonally dominant at row 2.
     ⚠️  Warning: The matrix is not diagonally dominant at row 3.
@@ -140,7 +143,8 @@ Matrix to solve:
     The method converged in 39 iterations with an error of 0.0
 
     We'll apply again the same method but using omega = 1.0 to solve the previous system of equations.
-    omega = 1.0
+
+    --> omega = 1.0
 
     The solution is:
     
@@ -153,8 +157,10 @@ Matrix to solve:
 
     The method converged in 43 iterations with an error of 0.0
 
-    Note that the solution to the linear system is found since it is not diagonally dominant. This shows that the diagonally dominant
-    condition is only a sufficient condition, not necessary for convergence to exist.
+    IMPORTANT: 
+    --> Note that the solution with omega > 1 (over-relaxation) converges faster than omega = 1 (Gauss-Seidel).
+    --> Note that the solution to the linear system is found since it is not diagonally dominant. This shows that the diagonally dominant
+        condition is only a sufficient condition, not necessary for convergence to exist.
 
     if omega = 1 we have Gauss-Seidel
     if omega 0 <= omega < 1 we have under-relaxation --> It's used to make a system converge that otherwise would not converge if you use Gauss-Seidel 
@@ -265,7 +271,9 @@ void printSolution(const char* methodName, double Xn[], int n, int iterations, d
     printf("------------------SOLUTION OF %s------------------\n", methodName);
     printf("The solution of the system is:\n");
     for(int i = 1; i <= n; i++) {
-        printf("Xn[%d] = %10.6lf\n", i, Xn[i]);
+        // Fix for -0.0 display issue: if value is very close to zero, show as 0.0
+        double value = (fabs(Xn[i]) < 1e-10) ? 0.0 : Xn[i];
+        printf("Xn[%d] = %10.6lf\n", i, value);
     }
     printf("The method converged in %d iterations with an error of %10.6lf\n", iterations, error);
 }
