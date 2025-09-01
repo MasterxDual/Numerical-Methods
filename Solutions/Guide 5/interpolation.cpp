@@ -104,6 +104,16 @@ int main(int argc, char const *argv[]) {
             
             printf("\n------------------INTERPOLATING POLYNOMIAL------------------\n");
             print_polynomial(a, n);
+
+            // Optional: Evaluate polynomial at X_hat to interpolate
+            printf("Introduce your X̂ that is to be interpolated: ");
+            scanf("%lf", &X_hat);
+            sum = 0.0;
+            for(int i = 0; i < n; i++) {
+                sum = sum + a[i] * pow(X_hat, i);
+            }
+
+            printf("The interpolated value at X̂ = %lf is: %lf\n", X_hat, sum);
             break;
         default: 
             printf("Exiting program.\n");
