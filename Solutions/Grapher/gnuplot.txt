@@ -45,6 +45,15 @@ Añadir datos y funciones juntos:
     plot "datos.txt" using 1:2 title "Datos" with linespoints, \
         sin(x) title "sin(x)" with lines
 
+Definir un rango en x de cada grafico en combinacion con otros graficos:
+    plot "data.txt" using 1:2 title "Datos ingresados de tabla" with points ps 3 , \
+>[3:4.5] 0.186565*x**3 + (-1.679087*x**2) + 3.617490*x + 1.722054, \
+>[4.5:7] (x**3*(-0.214144)) + ((x**2)*3.730494) + ((-20.725627)*x) + 38.236730, \
+>[7:9] (x**3*(0.127757)) + ((-3.449430)*x**2) + (x*29.533840) + -79.035361
+
+//Aquí se puede ver que se define el rango previo a la gráfica de cada función, de esta manera se pueden graficar splines cubicas
+//Además, se le agregó un atributo ps para definir el tamaño del punto
+
 
 Salir de gnuplot:
     exit
