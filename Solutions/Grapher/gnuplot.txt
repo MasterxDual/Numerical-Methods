@@ -1,0 +1,50 @@
+Graficar una funcion:
+    gnuplot
+    plot x**2 title "y = x^2" with lines //Grafica solo la linea que une los puntos
+    plot x**2 title "y = x^2" with linespoints //Grafica la linea y los puntos
+    plot x**2 title "y = x^2" with points //Grafica solo los puntos
+    set xrange [-10:10] //Rango del eje x
+    set yrange [0:100] //Rango del eje y
+    replot //Actualizar la grafica
+
+Graficar una tabla de puntos (x, y):
+    plot "datos.txt" using 1:2 title "Grafico de la tabla de datos" with linespoints //1:2 indica que la primer columna es X y la segunda Y
+    set title "Nuevo numero de la grafica"
+    set xlabel "Eje x" //Etiqueta del eje x
+    set ylabel "Eje y" //Etiqueta del eje y
+
+Guardar el grafico como imagen:
+    set terminal png
+    set output "grafico.png"
+    replot
+    set output
+
+Graficar varias funciones en un solo comando:
+    //El carácter \ al final de la línea es solo para continuar en varias líneas
+    plot sin(x) title "sin(x)" with lines, \ 
+        cos(x) title "cos(x)" with lines, \
+        x**2 title "x²" with lines
+
+Configurar el rango y los estilos de todas las funciones graficadas previamente:
+    set xrange [-2*pi:2*pi]
+    set yrange [-2:2]
+    set title "Funciones trigonométricas y polinomiales"
+    set xlabel "x"
+    set ylabel "y"
+
+Ajustar escala:
+    //Simplemente basta con dividir entre un numero a los valores del eje y de la función a ajustar
+    //Esto hará que la parábola tenga una escala menor en el eje y, haciendo que la gráfica de las tres sea mas comparable
+    //linewitdth ajusta el ancho de la línea dibujada en las funciones
+
+    plot sin(x) title "sin(x)" with lines linewidth 2, \
+        cos(x) title "cos(x)" with lines linewidth 2, \
+        x**2/10 title "x^2/10" with lines linewidth 2
+
+Añadir datos y funciones juntos:
+    plot "datos.txt" using 1:2 title "Datos" with linespoints, \
+        sin(x) title "sin(x)" with lines
+
+
+Salir de gnuplot:
+    exit
