@@ -22,3 +22,4 @@ gaussian_pivoting
 jacobi_gauss_relaxation
 interpolation
 least_square_regression
+cubic_splines
