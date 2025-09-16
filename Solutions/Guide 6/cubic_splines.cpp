@@ -33,6 +33,16 @@ void print_data_points(double X[], double Y[], int n);
  */
 void print_cubic_splines(double X[], double solution[], int n);
 
+/**
+ * Function to evaluate the cubic spline at a given point x
+ * @param X Array of X values (data points)
+ * @param solution Array of spline coefficients
+ * @param n Number of data points
+ * @param x The x value to evaluate
+ * @return The interpolated y value
+ */
+double evaluate_spline(double X[], double solution[], int n, double x);
+
 
 int main(int argc, char const *argv[]) {
     // Arrays for data points to read from text file
@@ -42,7 +52,7 @@ int main(int argc, char const *argv[]) {
     // Solution of Least Squares polynomial
     double a[MAX_SIZE+1];
     // n = number of data points and degree is the polynomial degree
-    int n, degree;
+    int n, option;
     
 
     // Read data points from file
@@ -124,6 +134,19 @@ int main(int argc, char const *argv[]) {
     // Print the cubic spline coefficients
     print_cubic_splines(X, solution, n);
 
+    // We evalute points x_hat to verify if the spline works correctly
+    printf("Do you want to evaluate a point x_hat? (1 for yes, 0 for no): ");
+    scanf("%d", &option);
+    while(option) {
+        double x_hat;
+        printf("Enter the value of x_hat: ");
+        scanf("%lf", &x_hat);
+        double y_hat = evaluate_spline(X, solution, n, x_hat);
+        printf("The interpolated value at x_hat = %.3f is y_hat = %.3f\n", x_hat, y_hat);
+        printf("Do you want to evaluate another point x_hat? (1 for yes, 0 for no): ");
+        scanf("%d", &option);
+    }
+
     return 0;
 }
 
@@ -187,4 +210,37 @@ void print_cubic_splines(double X[], double solution[], int n) {
                k+1, solution[4*k], solution[4*k+1], solution[4*k+2], solution[4*k+3]);
     }
     printf("\n");
+}
+
+/**
+ * Function to evaluate the cubic spline at a given point x
+ * @param X Array of X values (data points)
+ * @param solution Array of spline coefficients
+ * @param n Number of data points
+ * @param x The x value to evaluate
+ * @return The interpolated y value
+ */
+double evaluate_spline(double X[], double solution[], int n, double x) {
+    int k;
+
+    // Find the correct spline interval
+    if (x <= X[0]) {
+        k = 0;  // Use first spline for x smaller than first point
+    } else if (x >= X[n-1]) {
+        k = n - 2; // Use last spline for x larger than last point
+    } else {
+        for (k = 0; k < n-1; k++) {
+            if (x >= X[k] && x <= X[k+1]) {
+                break;
+            }
+        }
+    }
+
+    // Evaluate S_k(x) = a*x^3 + b*x^2 + c*x + d
+    double y = solution[4*k] * pow(x, 3) +
+               solution[4*k+1] * pow(x, 2) +
+               solution[4*k+2] * x +
+               solution[4*k+3];
+
+    return y;
 }
