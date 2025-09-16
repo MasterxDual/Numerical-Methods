@@ -47,6 +47,9 @@ double calculate_error(double fx, double Pn);
  */
 double valuate_function(double x);
 
+/* This exercise needs to be with any lagrange polynomial of any degree.
+But the implementation was done with degree 2 because of extensive calculations */
+
 int main(int argc, char const *argv[]) {
     double X_hat, sum, product, error, fx;
     double X[MAX_POINTS], Y[MAX_POINTS];
