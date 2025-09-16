@@ -32,10 +32,23 @@ void print_data_points(double X[], double Y[], int n);
  */
 void print_polynomial(double a[], int n);
 
-/* Falta graficar los coeficientes y el error */
+/**
+ * Function to calculate the absolute error between actual and estimated values
+ * @param fx The actual function value valuated in X̂
+ * @param Pn The estimated polynomial value
+ * @return The absolute error
+ */
+double calculate_error(double fx, double Pn);
+
+/**
+ * Function to evaluate the actual function f(x)
+ * @param x The point at which to evaluate the function (in our case, X̂)
+ * @return The value of the function at x
+ */
+double valuate_function(double x);
 
 int main(int argc, char const *argv[]) {
-    double X_hat, sum, product;
+    double X_hat, sum, product, error, fx;
     double X[MAX_POINTS], Y[MAX_POINTS];
     // Arrays for polynomial coefficients calculation
     double A[MAX_SIZE+1][MAX_SIZE+1], b[MAX_SIZE+1], solution[MAX_SIZE+1];
@@ -72,13 +85,23 @@ int main(int argc, char const *argv[]) {
                 product = 1.0;
                 for(int i = 0; i < n; i++) {    
                     if(i != k) {
-                        product = product * ((X_hat - X[i]) / (X[k] - X[i]));
+                        // Cnk(X̂) = (X̂ - Xi) / (Xk - Xi)
+                        product = product * ((X_hat - X[i]) / (X[k] - X[i])); 
                     }
                 }
+                // Print coefficient Cnk(X̂)
+                // We can see that sumCnk = 1
+                printf("C%d%d(%.3f) = %.6f\n", n-1, k, X_hat, product);
+                
+                // Pn(X̂) = Σ Yk * Cnk(X̂)
                 sum = sum + (Y[k] * product);
             }
-        
-            printf("The interpolated value at X̂ = %lf is: %lf\n", X_hat, sum);
+            // error = |f(X̂) - Pn(X̂)|
+            fx = 0.0; // Here you can define the actual function f(X̂) if known
+            error = 0.0; // If fx is known, calculate error
+
+            printf("\nThe interpolated value at X̂ = %lf is: %lf\n", X_hat, sum);
+            printf("\nerror = |f(X̂) - Pn(X̂)| = %lf\n", calculate_error(valuate_function(X_hat), sum));
             break;
         case 2:
             // Interpolating Polynomial
@@ -105,6 +128,16 @@ int main(int argc, char const *argv[]) {
             
             printf("\n------------------INTERPOLATING POLYNOMIAL------------------\n");
             print_polynomial(a, n);
+
+            // Optional: Evaluate polynomial at X_hat to interpolate
+            printf("Introduce your X̂ that is to be interpolated: ");
+            scanf("%lf", &X_hat);
+            sum = 0.0;
+            for(int i = 0; i < n; i++) {
+                sum = sum + a[i] * pow(X_hat, i);
+            }
+
+            printf("The interpolated value at X̂ = %lf is: %lf\n", X_hat, sum);
             break;
         default: 
             printf("Exiting program.\n");
@@ -199,4 +232,13 @@ void print_polynomial(double a[], int n) {
         }
     }
     printf("\n\n");
+}
+
+double calculate_error(double fx, double Pn) {
+    return fabs(fx - Pn);
+}
+
+double valuate_function(double x) {
+    // f(x) = x + (2 / x)
+    return x + (2 / x);
 }
