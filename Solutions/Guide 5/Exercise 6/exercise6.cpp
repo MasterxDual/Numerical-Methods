@@ -42,7 +42,7 @@ double valuate_function(double x);
 
 /* In this exercise we use the implementation done in exercise 5, so we have the data points of data.txt
     Then, we use the interpolation of grade 2 and we have the result:
-    f(h) = A*h² + B*h + C ==> f(h) = 0.998895*h² - 0.093447*h + 0.002763
+    f(h) = A*h² + B*h + C ==> f(h) = 0.998895 - 0.093447*h + 0.002763*h²
     The exercise requires to calculate relative density of air at h = 10.5 km
     So we evaluate f(10.5) and we have the result f(10.5) = 0.322342
     r = 0.999988 --> Excellent fit
