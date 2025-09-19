@@ -54,6 +54,11 @@ Definir un rango en x de cada grafico en combinacion con otros graficos:
 //Aquí se puede ver que se define el rango previo a la gráfica de cada función, de esta manera se pueden graficar splines cubicas
 //Además, se le agregó un atributo ps para definir el tamaño del punto
 
+Agregarle extras a los graficos:
+    with linespoints lw 2 lc rgb "red"
+    donde:
+    *lw es line width
+    *lc es line color
 
 Salir de gnuplot:
     exit
