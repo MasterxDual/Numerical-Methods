@@ -47,6 +47,10 @@ double calculate_error(double fx, double Pn);
  */
 double valuate_function(double x);
 
+/* We can see that the efficiently extrapolation occurs only in certain functions because there are some cases where
+the polinomial fitting curve don't fit well outside the boundaries or intervals of the measurements
+You can see it in the graphs of the three exercises (2.1 2.2 and 2.3) */
+
 int main(int argc, char const *argv[]) {
     double X_hat, sum, product, error, fx;
     double X[MAX_POINTS], Y[MAX_POINTS];
