@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define MAX_POINTS 50
+#define MAX_POINTS 20
 #define MAX_SIZE 100 
 #include "gauss.h"
 
@@ -47,8 +47,47 @@ double calculate_error(double fx, double Pn);
  */
 double valuate_function(double x);
 
+/**
+ * Function to compute the Lagrange polynomial at a given point
+ * @param x The point at which to evaluate the polynomial
+ * @param X Array of X values
+ * @param Y Array of Y values
+ * @param n Number of data points
+ * @return The value of the Lagrange polynomial at x
+ */
+double lagrange_polinomial(double x, double X[], double Y[], int n);
+
+/**
+ * Function to compute the coefficients of the Lagrange polynomial
+ * @param X Array of X values
+ * @param Y Array of Y values
+ * @param n Number of data points
+ * @param coeffs Array to store the computed coefficients
+ */
+void lagrange_coefficients(double X[], double Y[], int n, double coeffs[]);
+
+/**
+ * Function to print the symbolic form of the Lagrange polynomial
+ * @param coeffs Array of coefficients
+ * @param n Number of data points
+ */
+void print_lagrange_expanded(double coeffs[], int n);
+
+/* To analyze the aproximation of the measurements and the lagrange polynomial we do the following points:
+--> Interpolate at intermediate points and verify that they are realistic.
+--> Extrapolate to T = 500°C and analyze whether the result is physically reasonable.
+--> Graph the polynomial and verify that it follows the expected behavior (cρ ∝ T³ for T→0, cρ→constant for T→∞).
+Results:
+--> Evaluating with x_hat = 500°C is an extrapolation and we got the result of 8.772791 kJ/kg*K
+This result is physically impossible
+--> Interpolating at intermediate points gives realistic values
+--> The graph it's in this folder, watch it for more information. Analyzing it we can say that lagrange polynomial is not a good fit
+for this problem because it doesn't follow the expected behavior for cρ→constant for T→∞
+We may use other methods like splines or least squares polynomial fitting for this type of problem
+ */
+
 int main(int argc, char const *argv[]) {
-    double X_hat, sum, product, error, fx;
+    double X_hat, sum, product, error, fx, Pn;
     double X[MAX_POINTS], Y[MAX_POINTS];
     // Arrays for polynomial coefficients calculation
     double A[MAX_SIZE+1][MAX_SIZE+1], b[MAX_SIZE+1], solution[MAX_SIZE+1];
@@ -68,6 +107,7 @@ int main(int argc, char const *argv[]) {
     printf("Choose an option:\n");
     printf("1. Lagrange Interpolation\n");
     printf("2. Interpolating Polynomial (using Gaussian elimination)\n");
+    printf("3. Polynomial Lagrange Printed\n");
     printf("0. Exit\n");
     scanf("%d", &option);
     
@@ -96,6 +136,7 @@ int main(int argc, char const *argv[]) {
                 // Pn(X̂) = Σ Yk * Cnk(X̂)
                 sum = sum + (Y[k] * product);
             }
+
             // error = |f(X̂) - Pn(X̂)|
             fx = 0.0; // Here you can define the actual function f(X̂) if known
             error = 0.0; // If fx is known, calculate error
@@ -151,6 +192,34 @@ int main(int argc, char const *argv[]) {
             printf("The interpolated value at X̂ = %lf is: %lf\n", X_hat, sum);
 
             printf("\nerror = |f(X̂) - Pn(X̂)| = %lf\n", error);
+            break;
+        case 3:
+            /* If X_hat is between the range of the data points, it's an interpolation
+            If X_hat is outside the range, it's an extrapolation */
+            // Lagrange Interpolation
+            printf("Introduce your X̂ that is to be interpolated: ");
+            scanf("%lf", &X_hat);
+
+            Pn = lagrange_polinomial(X_hat, X, Y, n);
+
+            // Calculate coefficients of the expanded polynomial
+            double coeffs[MAX_POINTS];
+            lagrange_coefficients(X, Y, n, coeffs);
+            
+            printf("------------------LAGRANGE POLYNOMIAL------------------\n");
+            print_lagrange_expanded(coeffs, n);
+
+            // error = |f(T) - Pn(T)| 
+            // Nota: Para datos experimentales no hay función teórica exacta
+            fx = valuate_function(X_hat);
+            error = calculate_error(fx, Pn);
+
+            printf("\nThe interpolated value at x_hat = %.2f is: %.6f \n", X_hat, Pn);
+            if (fx != 0.0) {
+                printf("\nerror = |f(x) - Pn(x)| = %lf\n", error);
+            } else {
+                printf("\nNote: Error is not calculated - experimental data is used without an exact theoretical function\n");
+            }
             break;
         default: 
             printf("Exiting program.\n");
@@ -247,11 +316,83 @@ void print_polynomial(double a[], int n) {
     printf("\n\n");
 }
 
+double lagrange_polinomial(double x, double X[], double Y[], int n) {
+    double sum, product;
+
+    // Calculate Pn(X̂)
+    sum = 0.0;
+    for(int k = 0; k < n; k++) {        
+        product = 1.0;
+        for(int i = 0; i < n; i++) {    
+            if(i != k) {
+                // Cnk(X̂) = (X̂ - Xi) / (Xk - Xi)
+                product = product * ((x - X[i]) / (X[k] - X[i])); 
+            }
+        }
+        // Print coefficient Cnk(X̂)
+        // We can see that sumCnk = 1
+        printf("C%d%d(%.3f) = %.6f\n", n-1, k, x, product);
+        
+        // Pn(X̂) = Σ Yk * Cnk(X̂)
+        sum = sum + (Y[k] * product);
+    }
+
+    return sum;
+}
+
+
+
+void lagrange_coefficients(double X[], double Y[], int n, double coeffs[]) {
+    for (int i = 0; i < n; i++)
+        coeffs[i] = 0.0;
+
+    for (int k = 0; k < n; k++) {
+        double base[MAX_POINTS] = {1.0}; 
+        int degree = 0;
+
+        double denom = 1.0;
+        for (int i = 0; i < n; i++) {
+            if (i == k) continue;
+
+            // Multiplies (x - X[i]) to the base polynomial
+            for (int j = degree; j >= 0; j--)
+                base[j+1] += base[j];
+            degree++;
+
+            for (int j = degree; j >= 0; j--)
+                base[j] = (j>0 ? base[j-1] : 0) - X[i]*(j>=0?base[j]:0);
+
+            denom *= (X[k] - X[i]);
+        }
+
+        double factor = Y[k] / denom;
+        for (int j = 0; j <= degree; j++)
+            coeffs[j] += base[j] * factor;
+    }
+}
+
+void print_lagrange_expanded(double coeffs[], int n) {
+    printf("P_%d(x) = ", n-1);
+    int first = 1;
+    for (int i = 0; i < n; i++) {
+        if (fabs(coeffs[i]) < 1e-12) continue; 
+        if (!first) {
+            if (coeffs[i] >= 0) printf(" + ");
+            else printf(" - ");
+        } else if (coeffs[i] < 0) {
+            printf("-");
+        }
+        printf("%.6f", fabs(coeffs[i]));
+        if (i > 0) printf("*x^%d", i);
+        first = 0;
+    }
+    printf("\n");
+}
+
 double calculate_error(double fx, double Pn) {
     return fabs(fx - Pn);
 }
 
 double valuate_function(double x) {
-    // f(x) = x + (2 / x)
-    return x + (2 / x);
+    return x + (2/x);
 }
