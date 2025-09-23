@@ -1,13 +1,14 @@
 .vscode
 
-# Ignorar archivos ejecutables comunes (sin extensión en Linux/macOS)
+
+# Ignore common executable files (without extension on Linux/macOS)
 a.out
 *.out
 *.exe
 *.o
 *.obj
 
-# Ignorar ejecutables sin extensión que tú generes (específicamente):
+# Ignore executables without extension
 bisection_regula_falsi
 exercise1
 exercise2
@@ -25,3 +26,4 @@ interpolation
 least_square_regression
 splines
 example_linear_spline
+trapeze_simpson
