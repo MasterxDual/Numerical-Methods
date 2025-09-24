@@ -71,7 +71,7 @@ class SimpleGrapher:
             print(f"Error evaluating function '{expr}': {str(e)}")
             return np.full_like(x_vals, np.nan)
 
-    def graficar(self, expr: str, x_min: float = -10, x_max: float = 10,
+    def graph(self, expr: str, x_min: float = -10, x_max: float = 10,
                  points_number: int = 1000) -> None:
         """
         Graphs a function and shows the approximate roots.
@@ -162,7 +162,7 @@ class SimpleGrapher:
             plt.close()
 
         except (ValueError, TypeError, RuntimeError, OverflowError) as e:
-            print(f"Error al graficar: {str(e)}")
+            print(f"Error doing graph: {str(e)}")
 
 def show_instructions():
     """Shows basic usage instructions."""
