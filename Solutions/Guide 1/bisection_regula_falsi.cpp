@@ -12,7 +12,7 @@ double math_function(double x);
 int get_error_type();
 double calculate_error(double c, double old_c, int error_type);
 void update_interval(double *a, double *b, double c);
-void print_results(double c, double error, int max_iterations);
+void print_results(double c, double error, int max_iterations, int error_type);
 
 int main(int argc, char const *argv[]) {
     // Variable definitions
@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
                 old_c = c; // We update old_c for the next iteration
             } while(error > tolerance);
 
-            print_results(c, error, max_iterations);
+            print_results(c, error, max_iterations, error_type);
             break;
         case 2:
             printf("Método de Regula Falsi seleccionado\n");
@@ -68,7 +68,7 @@ int main(int argc, char const *argv[]) {
                 old_c = c; // We update old_c for the next iteration
             } while(error > tolerance);
 
-            print_results(c, error, max_iterations);
+            print_results(c, error, max_iterations, error_type);
             break;
         default:
             printf("Opción inválida. Seleccione 1 o 2.\n");
@@ -93,7 +93,7 @@ int get_error_type() {
 // Function to calculate error (absolute or percentage)
 double calculate_error(double c, double old_c, int error_type) {
     if(error_type == 2) {
-        return fabs((c - old_c) / c) * 100; // Percentage error
+        return fabs((c - old_c) / c); // Percentage error
     } else if(error_type == 1) {
         return fabs(c - old_c); // Absolute error
     } else {
@@ -115,9 +115,13 @@ void update_interval(double *a, double *b, double c) {
 }
 
 // Function to print final results
-void print_results(double c, double error, int max_iterations) {
-    printf("La raíz aproximada es: %lf, con un error de %lf\n", c, error);
-    printf("Número de iteraciones: %d\n", max_iterations);
+void print_results(double c, double error, int max_iterations, int error_type) {
+    if(error_type == 2) {
+        printf("La raíz aproximada es: %0.8lf, con un error de %0.8lf%%\n", c, error*100);
+        printf("Número de iteraciones: %d\n", max_iterations);
+    } else {
+        printf("La raíz aproximada es: %0.8lf, con un error de %0.8lf\n", c, error);
+        printf("Número de iteraciones: %d\n", max_iterations);
+    }
 }
-
 
