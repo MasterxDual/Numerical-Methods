@@ -23,12 +23,13 @@ bool read_array_file(const char* filename, double a[][MAX_SIZE+1], double b[], i
 int main(int argc, char const *argv[]) {
     int n, p;
     double factor, product, sum, aux;
+    int is_partial_pivoting = 0;
     
     // Defining arrays using the global MAX_SIZE
     double a[MAX_SIZE+1][MAX_SIZE+1], b[MAX_SIZE+1], X[MAX_SIZE+1];
 
     // Read array from file using function
-    if(!read_array_file("data.dat", a, b, &n)) {
+    if(!read_array_file("data2.dat", a, b, &n)) {
         return 1;
     }
     
@@ -48,6 +49,7 @@ int main(int argc, char const *argv[]) {
         // We'll use partial pivoting to avoid division by zero or numerical instability
         p = i;
         if(fabs(a[i][i]) < 1e-5) {
+            is_partial_pivoting = 1;
             for(int l = i+1; l <= n; l++) {
                 if(fabs(a[l][i]) > fabs(a[p][i])) {
                     p = l; // We find the row with the largest element in column i
@@ -73,6 +75,11 @@ int main(int argc, char const *argv[]) {
             }
             b[j] = b[j] - factor * b[i]; // Corregido: b[j] - factor * b[i]
         }
+    }
+
+    // Prints if we used partial pivoting in the matrix resolution
+    if(is_partial_pivoting == 1) {
+        printf("Partial pivoting used\n");
     }
 
     // We print the matrix after Gaussian elimination, It's more convenient
