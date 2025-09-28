@@ -28,7 +28,11 @@ splines
 example_linear_spline
 trapeze_simpson
 matrix_generator
+exercise1_newton_raphson
+exercise2_gauss_seidel
+exercise2_gaussian_elimination
 exercise3_lagrange
 exercise3_bisection
 exercise3_gauss_seidel
 exercise3_gauss_elimination
+exercise4_spline
