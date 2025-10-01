@@ -53,6 +53,15 @@ double evaluate_spline(double X[], double solution[], int n, double x);
  *  */ 
 double second_derivative(double (*func)(double), double x, double h = 1e-5);
 
+/** 
+ * Fourth derivative using aproximation
+ * @param func Pointer to the function
+ * @param x The point at which to evaluate the fourth derivative
+ * @param h A small value for the finite difference approximation (default is 1e-5)
+ * @return The fourth derivative of the function at point x
+ *  */
+double fourth_derivative(double (*func)(double), double x, double h = 1e-5);
+
 int main(int argc, char const *argv[]) {
     int choice, subintervals;
     // Limits of integration
@@ -384,8 +393,38 @@ int main(int argc, char const *argv[]) {
                 printf("The integral is: %lf\n", sum);
                 break;
         }
+    } else if(choice == 4) {
+        // Point to calculate the error
+        double c;
+        // Integral of Simpson 1/3
+        double Iaprox = 0.0;
+        // Error of Simpson 1/3
+        double aprox_error = 0.0;
+        // Exactly error and porcentual error
+        double exact_error = 0.0, porcentual_error = 0.0;
+        // Exact Integral (needs to be calculated manually)
+        double Iexact = 0.0;
+
+        printf("Insert the limits of integration:\n");
+        scanf("%lf %lf", &a, &b);
+        printf("Insert a value between the interval [a,b] to calculate the error:\n");
+        scanf("%lf", &c);
+        printf("Insert the exact value of the integral to calculate the exact error:\n");
+        scanf("%lf", &Iexact);
+
+        // Calculate I
+        Iaprox = ((b-a)/6) * (f(a) + 4*f((a+b)/2) + f(b));
+        aprox_error = fabs(-(1.0/2880.0) * pow(b-a, 5) * fourth_derivative(f, c));
+        exact_error = fabs(Iexact - Iaprox);
+        porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100;
+
+        // Print results
+        printf("The aproximated integral is: %lf\n", Iaprox);
+        printf("The aproximated error is: %lf\n", aprox_error);
+        printf("The exact error is: %lf\n", exact_error);
+        printf("The porcentual error is: %lf%%\n", porcentual_error);
     } else {
-        printf("You should insert a number between the interval [1, 3]");
+        printf("You should insert a number between the interval [1, 4]");
     }
     
     return 0;
@@ -397,6 +436,10 @@ double f(double x) {
 
 double second_derivative(double (*func)(double), double x, double h) {
     return (func(x + h) - 2 * func(x) + func(x - h)) / (h * h);
+}
+
+double fourth_derivative(double (*func)(double), double x, double h) {
+    return (func(x - 2*h) - 4*func(x - h) + 6*func(x) - 4*func(x + h) + func(x + 2*h)) / (pow(h, 4));
 }
 
 
