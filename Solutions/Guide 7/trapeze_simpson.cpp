@@ -43,11 +43,21 @@ double f(double x);
  */
 double evaluate_spline(double X[], double solution[], int n, double x);
 
+
+/** 
+ * Second derivative using aproximation
+ * @param func Pointer to the function
+ * @param x The point at which to evaluate the second derivative
+ * @param h A small value for the finite difference approximation (default is 1e-5)
+ * @return The second derivative of the function at point x
+ *  */ 
+double second_derivative(double (*func)(double), double x, double h = 1e-5);
+
 int main(int argc, char const *argv[]) {
     int choice, subintervals;
     // Limits of integration
     double a, b;
-    // Integral of Trapeze
+    // Integral of Composition Trapeze
     double sum = 0.0;
     // Values to divide the interval of integration [a,b]
     double x = 0.0;
@@ -56,7 +66,7 @@ int main(int argc, char const *argv[]) {
 
     
 
-    printf("Choose an option (1.Trapeze 2.Simpson 1/3 3.Simpson Composition)\n");
+    printf("Choose an option (1.Composition Trapeze 2.Simple Trapeze 3.Composition Simpson 4.Simpson 1/3)\n");
     scanf("%d", &choice);
     if (choice == 1) {
         printf("Do you have a function or Do you have a data table?\n");
@@ -194,7 +204,36 @@ int main(int argc, char const *argv[]) {
                 break;
         }
     } else if(choice == 2) {
-        
+        // Point to calculate the error
+        double c;
+        // Integral of Simple Trapeze
+        double Iaprox = 0.0;
+        // Error of Simple Trapeze
+        double aprox_error = 0.0;
+        // Exactly error and porcentual error
+        double exact_error = 0.0, porcentual_error = 0.0;
+        // Exact Integral (needs to be calculated manually)
+        double Iexact = 0.0;
+
+        printf("Insert the limits of integration:\n");
+        scanf("%lf %lf", &a, &b);
+        printf("Insert a value between the interval [a,b] to calculate the error:\n");
+        scanf("%lf", &c);
+        printf("Insert the exact value of the integral to calculate the exact error:\n");
+        scanf("%lf", &Iexact);
+
+        // Calculate I
+        Iaprox = (b-a) * ((f(b) + f(a)) / 2);
+        aprox_error = fabs(-(1.0/12.0) * second_derivative(f, c) * pow((b - a), 3));
+        exact_error = fabs(Iexact - Iaprox);
+        porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100;
+
+        // Print results
+        printf("The aproximated integral is: %lf\n", Iaprox);
+        printf("The aproximated error is: %lf\n", aprox_error);
+        printf("The exact error is: %lf\n", exact_error);
+        printf("The porcentual error is: %lf%%\n", porcentual_error);
+
     } else if(choice == 3) {
         printf("Do you have a function or Do you have a data table?\n");
         printf("1. I have a function\n");
@@ -353,8 +392,13 @@ int main(int argc, char const *argv[]) {
 }
 
 double f(double x) {
-    return x * x;
+    return (pow(x, 2) + 1);
 }
+
+double second_derivative(double (*func)(double), double x, double h) {
+    return (func(x + h) - 2 * func(x) + func(x - h)) / (h * h);
+}
+
 
 int read_data_points(const char* filename, double X[], double Y[], int* n) {
     FILE *fp;
