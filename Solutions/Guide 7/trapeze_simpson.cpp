@@ -413,7 +413,7 @@ int main(int argc, char const *argv[]) {
         scanf("%lf", &Iexact);
 
         // Calculate I
-        Iaprox = ((b-a)/6) * (f(a) + 4*f((a+b)/2) + f(b));
+        Iaprox = ((b-a)/6) * (f(a) + 4*f((a+b)/2.0) + f(b));
         aprox_error = fabs(-(1.0/2880.0) * pow(b-a, 5) * fourth_derivative(f, c));
         exact_error = fabs(Iexact - Iaprox);
         porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100;
