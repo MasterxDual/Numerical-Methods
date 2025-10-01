@@ -60,7 +60,7 @@ double second_derivative(double (*func)(double), double x, double h = 1e-5);
  * @param h A small value for the finite difference approximation (default is 1e-5)
  * @return The fourth derivative of the function at point x
  *  */
-double fourth_derivative(double (*func)(double), double x, double h = 1e-5);
+double fourth_derivative(double (*func)(double), double x, double h = 0.01);
 
 int main(int argc, char const *argv[]) {
     int choice, subintervals;
@@ -232,10 +232,10 @@ int main(int argc, char const *argv[]) {
         scanf("%lf", &Iexact);
 
         // Calculate I
-        Iaprox = (b-a) * ((f(b) + f(a)) / 2);
+        Iaprox = (b-a) * ((f(b) + f(a)) / 2.0);
         aprox_error = fabs(-(1.0/12.0) * second_derivative(f, c) * pow((b - a), 3));
         exact_error = fabs(Iexact - Iaprox);
-        porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100;
+        porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100.0;
 
         // Print results
         printf("The aproximated integral is: %lf\n", Iaprox);
@@ -394,6 +394,7 @@ int main(int argc, char const *argv[]) {
                 break;
         }
     } else if(choice == 4) {
+        // This method works perfectly with grade 3 polynomials or less
         // Point to calculate the error
         double c;
         // Integral of Simpson 1/3
@@ -416,7 +417,7 @@ int main(int argc, char const *argv[]) {
         Iaprox = ((b-a)/6) * (f(a) + 4*f((a+b)/2.0) + f(b));
         aprox_error = fabs(-(1.0/2880.0) * pow(b-a, 5) * fourth_derivative(f, c));
         exact_error = fabs(Iexact - Iaprox);
-        porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100;
+        porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100.0;
 
         // Print results
         printf("The aproximated integral is: %lf\n", Iaprox);
