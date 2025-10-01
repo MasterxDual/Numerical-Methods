@@ -56,7 +56,7 @@ int main(int argc, char const *argv[]) {
 
     
 
-    printf("Trapeze or Simpson 1/3?(1.Trapeze 2.Simpson 1/3 3.Simpson Composition)\n");
+    printf("Choose an option (1.Trapeze 2.Simpson 1/3 3.Simpson Composition)\n");
     scanf("%d", &choice);
     if (choice == 1) {
         printf("Do you have a function or Do you have a data table?\n");
