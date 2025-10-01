@@ -73,8 +73,6 @@ int main(int argc, char const *argv[]) {
     // Distance between two consecutive points
     double h = 0.0;
 
-    
-
     printf("Choose an option (1.Composition Trapeze 2.Simple Trapeze 3.Composition Simpson 4.Simpson 1/3)\n");
     scanf("%d", &choice);
     if (choice == 1) {
@@ -264,11 +262,15 @@ int main(int argc, char const *argv[]) {
                 // Calculate I
                 sum = f(a) + f(b);
                 h = (b - a) / subintervals;        
-                for(int i = 1; i <= subintervals-3; i+=2) {
+                for(int i = 1; i < subintervals; i++) {
                     x[i] = a + (i * h);
-                    sum += (4 * f(x[i])) + (2 * f(x[i]+h));
+                    if (i % 2 == 0) {
+                        sum += 2 * f(x[i]);  // índices pares
+                    } else {
+                        sum += 4 * f(x[i]);  // índices impares
+                    }
                 }
-                sum = (h/3) * (sum + 4*f(a + ((subintervals-1)*h)));
+                sum = (h/3) * sum;
 
                 // Print integral using Composition Simpson
                 printf("The integral is: %lf\n", sum);
@@ -414,7 +416,7 @@ int main(int argc, char const *argv[]) {
         scanf("%lf", &Iexact);
 
         // Calculate I
-        Iaprox = ((b-a)/6) * (f(a) + 4*f((a+b)/2.0) + f(b));
+        Iaprox = ((b-a)/6.0) * (f(a) + 4.0*f((a+b)/2.0) + f(b));
         aprox_error = fabs(-(1.0/2880.0) * pow(b-a, 5) * fourth_derivative(f, c));
         exact_error = fabs(Iexact - Iaprox);
         porcentual_error = (fabs(Iexact - Iaprox) / fabs(Iexact)) * 100.0;
@@ -432,7 +434,7 @@ int main(int argc, char const *argv[]) {
 }
 
 double f(double x) {
-    return (pow(x, 2) + 1);
+    return (sin(2*x) * exp(-x));
 }
 
 double second_derivative(double (*func)(double), double x, double h) {
