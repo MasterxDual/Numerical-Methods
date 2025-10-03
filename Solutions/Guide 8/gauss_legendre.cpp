@@ -12,6 +12,47 @@
  */
 double f(double x);
 
+/* 
+Summary:
+    2 points:
+        Exact for: Polynomials of degree ≤ 3
+        Ideal functions:
+        f(x) = ax³ + bx² + cx + d
+        Very smooth and monotonic functions
+        Simple exponentials in small intervals
+        When it fails: Oscillating functions, abrupt changes
+        Example: f(x) = x³ + 2x² → Exact result
+    3 points:
+        Exact for: Polynomials of degree ≤ 5
+        Ideal functions:
+        Moderate oscillations (like your sin(2x)*e^(-x))
+        Functions with 1-2 local extrema
+        Exponentials with complex behavior
+        Optimal trade-off: Accuracy vs. efficiency
+        Example: Your function → Very good result
+    4 points:
+        Exact for: Polynomials of degree ≤ 7
+        Ideal functions:
+        Greater curvature and complexity
+        Trigonometric functions with medium frequency
+        Combinations of exponential and trigonometric functions
+        When to use: You need high precision without being excessive
+    5 points:
+        Exact for: Polynomials of degree ≤ 9
+        Ideal functions:
+        Highly oscillatory (e.g., sin(10x))
+        Multiple local extrema
+        Functions with smooth singularities
+        Cost-benefit: Begins to be expensive
+    6 points:
+        Exact for: Polynomials of degree ≤ 11
+        Ideal functions:
+        Extremely complex
+        Many oscillations in the interval
+        When 5 points do not converge
+        
+*/
+
 int main(int argc, char const *argv[]) {
     // Weighting factor
     double c0, c1, c2, c3, c4, c5;
