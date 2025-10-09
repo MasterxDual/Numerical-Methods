@@ -88,6 +88,9 @@ Summary:
     h_cp = (∫(from 0 to H) h * p(h) dh) / (∫(from 0 to H) p(h) dh)
     where p(h) = pressure in function of height h
     H = 112 meters. Total height
+
+    Using Cubic Spline to define the interpolated function and using the formula of Gauss-Legendre quadrature with 6 points:
+    Center of pressure = 18.205681 meters.
  */
 
 // Global variables to store spline data for integration
