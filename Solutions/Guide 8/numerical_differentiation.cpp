@@ -4,6 +4,7 @@
 
 #define MAX_POINTS 20
 #define MAX_SIZE 100
+#define PI 3.14159265358979323846
 
 #include "gauss.h"
 
@@ -1204,4 +1205,56 @@ double evaluate_spline(double X[], double solution[], int n, double x) {
                solution[4*k+3];
 
     return y;
+}
+
+double X(double tita) {
+    // x(tita) = R*cos(tita) + (L² - R² * sin²(tita))^(1/2)
+    // Where R = 90 mm = 0.09 m and L = 2.5*R = 0.225 m
+    double R = 0.09;
+    double L = 0.225;
+    return (R * cos(tita)) + (sqrt(pow(L, 2) - pow(R, 2) * pow(sin(tita), 2)));
+}
+
+void points_generator_deg(const char *file_name) {
+    FILE *fp = fopen(file_name, "w");
+    if (!fp) {
+        perror("Error al abrir el archivo");
+        return;
+    }
+
+    double tita_deg, tita_rad, x;
+    // double h = 2 * PI / (N - 1);
+
+    for (int i = 0; i <= 36; i++) {
+        tita_deg = i * 5; // From 0 to 180 degrees in steps of 5 degrees
+        tita_rad = tita_deg * (PI / 180.0); // Convert to radians
+
+        x = X(tita_rad);
+        fprintf(fp, "%.6f %.6f\n", tita_deg, x);
+    }
+
+    fclose(fp);
+    printf("Archivo '%s' generado correctamente.\n", file_name);
+}
+
+void points_generator_rad(const char *file_name) {
+    FILE *fp = fopen(file_name, "w");
+    if (!fp) {
+        perror("Error al abrir el archivo");
+        return;
+    }
+
+    double tita_deg, tita_rad, x;
+    // double h = 2 * PI / (N - 1);
+
+    for (int i = 0; i <= 36; i++) {
+        tita_deg = i * 5; // From 0 to 180 degrees in steps of 5 degrees
+        tita_rad = tita_deg * (PI / 180.0); // Convert to radians
+
+        x = X(tita_rad);
+        fprintf(fp, "%.6f %.6f\n", tita_rad, x);
+    }
+
+    fclose(fp);
+    printf("Archivo '%s' generado correctamente.\n", file_name);
 }
