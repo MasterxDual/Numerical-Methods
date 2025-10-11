@@ -71,7 +71,6 @@ int main(int argc, char const *argv[]) {
     int number_of_derivative;
     // Variable to store if it's a function or a data table
     int function_data_table;
-
     
     printf("Insert the derivative that you want to calculate: 1.First derivative 2.Second derivative 3.Third derivative\n");
     scanf("%d", &number_of_derivative);
@@ -132,13 +131,13 @@ int main(int argc, char const *argv[]) {
                     int n;
 
                     // Read data points from file
-                    if (!read_data_points("data.txt", X, Y, &n)) {
+                     if (!read_data_points("data.txt", X, Y, &n)) {
                         printf("Failed to read data from file. Exiting.\n");
                         return 1;
                     }
                     // Print the data points
                     print_data_points(X, Y, n);
-
+                    /*
                     // 2. Inicializar A y b
                     for (int i = 0; i < 4*(n-1); i++) {
                         b[i] = 0.0;
@@ -219,30 +218,32 @@ int main(int argc, char const *argv[]) {
                     // Initialize x array with the new equally spaced points
                     for(int i = 0; i < n; i++) {
                         x[i] = new_X[i];
-                    }
+                    } */
+
+                    h = X[1] - X[0]; // Assuming uniform spacing in the original data
 
                     // Calculate first derivative in extreme points 
                     // fp[0] = ((f(a+h) - f(a))/h); // This is O(h)
-                    fp[0] = ((new_Y[1] - new_Y[0])/h);
-                    // fp[n-1] = ((f(b) - f(b-h))/h); // This is O(h) - CORRECTED INDEX
-                    fp[n-1] = ((new_Y[n-1] - new_Y[n-2])/h);
+                    fp[0] = ((Y[1] - Y[0])/h);
+                    // fp[n-1] = ((f(b) - f(b-h))/h); // This is O(h)
+                    fp[n-1] = ((Y[n-1] - Y[n-2])/h);
                 
                 
                     // For the inner points
                     for(int i = 1; i <= n-2; i++) {
                         // x[i] = a + i*h;
                         // fp[i] = (f(x[i]+h) - f(x[i]-h)) / (2*h); // This is O(h²)
-                        fp[i] = (new_Y[i+1] - new_Y[i-1]) / (2*h); // This is O(h²)
+                        fp[i] = (Y[i+1] - Y[i-1]) / (2*h); // This is O(h²)
                     }
     
                     // Print results
                     printf("x\t\tf'(x)\n");
                     for(int i = 0; i < n; i++) {  
-                        printf("%lf\t%lf\n", x[i], fp[i]);
+                        printf("%lf\t%lf\n", X[i], fp[i]);
                     }
                 
                     // Save x[i] and fp[i] in a text file
-                    save_in_txt(x, fp, n-1); //We have n points
+                    save_in_txt(X, fp, n-1); //We have n points
                 
                     // Finally, we print the results.txt file in a graph using Python to visualize the results
                     system("python3 graph_points.py");
@@ -302,8 +303,89 @@ int main(int argc, char const *argv[]) {
                     // Print the data points
                     print_data_points(X, Y, n);
 
-                    // This option doesn't use equally spaced points and don't need to calculate new_X and new_Y using Cubic Spline
-                    h = X[1] - X[0]; // We use the original spacing from the data points
+                    // 2. Inicializar A y b
+                    /* for (int i = 0; i < 4*(n-1); i++) {
+                        b[i] = 0.0;
+                        for (int j = 0; j < 4*(n-1); j++) {
+                            A[i][j] = 0.0;
+                        }
+                    }
+
+                    // We calculate A[4(n-1)][4(n-1)] and b[4(n-1)]
+                    // First 2(n-1) equations: Each spline passes through its two endpoints
+                    for(int k = 0; k < n-1; k++) {
+                        // Spline k passes through point (X[k], Y[k])
+                        for(int j = 0; j <= 3; j++) {
+                            A[2*k][4*k+j] = pow(X[k], 3-j);
+                        }
+                        b[2*k] = Y[k];
+                    
+                        // Spline k passes through point (X[k+1], Y[k+1])
+                        for(int j = 0; j <= 3; j++) {
+                            A[2*k+1][4*k+j] = pow(X[k+1], 3-j);
+                        }
+                        b[2*k+1] = Y[k+1];
+                    }
+
+
+                    // Next n-2 equations: Continuity of first derivatives
+                    for(int k = 0; k < n-2; k++) {
+                        int row = 2*(n-1) + k;
+                        // First derivative of spline k at X[k+1]
+                        for(int j = 0; j <= 2; j++) {
+                            A[row][4*k+j] = (3-j) * pow(X[k+1], 2-j);
+                        }
+                        // First derivative of spline k+1 at X[k+1]
+                        for(int j = 0; j <= 2; j++) {
+                            A[row][4*(k+1)+j] = -(3-j) * pow(X[k+1], 2-j);
+                        }
+                        b[row] = 0.0;
+                    }
+
+                    // Next n-2 equations: Continuity of second derivatives
+                    for(int k = 0; k < n-2; k++) {
+                        int row = 2*(n-1) + (n-2) + k;
+                        // Second derivative of spline k at X[k+1]
+                        A[row][4*k] = 6 * X[k+1];
+                        A[row][4*k+1] = 2;
+                        // Second derivative of spline k+1 at X[k+1]
+                        A[row][4*(k+1)] = -6 * X[k+1];
+                        A[row][4*(k+1)+1] = -2;
+                        b[row] = 0.0;
+                    }
+
+                    // Two boundary conditions: Natural spline (second derivatives = 0 at endpoints)
+                    int row1 = 4*(n-1) - 2;
+                    int row2 = 4*(n-1) - 1;
+
+                    // Second derivative = 0 at X[0] (first spline)
+                    A[row1][0] = 6 * X[0];
+                    A[row1][1] = 2;
+                    b[row1] = 0.0;
+
+                    // Second derivative = 0 at X[n-1] (last spline)
+                    A[row2][4*(n-2)] = 6 * X[n-1];
+                    A[row2][4*(n-2)+1] = 2;
+                    b[row2] = 0.0;
+
+                    // We use the function from gauss.h to solve the system with Gaussian elimination
+                    gauss_elimination(4*(n-1), A, b, solution);
+
+                    // Divide the interval [X[0], X[n-1]] into n-1 subintervals of equal length
+                    h = (X[n - 1] - X[0]) / (n - 1);
+
+                    // Calculate X[n] and Y[n] equally spaced
+                    for(int i = 0; i < n; i++) {
+                        new_X[i] = X[0] + i * h;
+                        new_Y[i] = evaluate_spline(X, solution, n, new_X[i]);
+                    }
+
+                    // Initialize x array with the new equally spaced points
+                    for(int i = 0; i < n; i++) {
+                        x[i] = new_X[i];
+                    } */
+
+                    h = X[1] - X[0]; // Assuming uniform spacing in the original data
 
                     // Calculate second derivative in extreme points
                     // fpp[0] = (f(a+2*h) - 2*f(a+h) + f(a))/(h*h); // This is O(h)
@@ -325,7 +407,7 @@ int main(int argc, char const *argv[]) {
                     }
     
                     // Save x[i] and fpp[i] in a text file
-                    save_in_txt(x, fpp, n-1);
+                    save_in_txt(X, fpp, n-1);
                 
                     // Finally, we print the results.txt file in a graph using Python to visualize the results
                     system("python3 graph_points.py");
@@ -386,7 +468,7 @@ int main(int argc, char const *argv[]) {
                     print_data_points(X, Y, n);
 
                     // 2. Inicializar A y b
-                    for (int i = 0; i < 4*(n-1); i++) {
+                    /* for (int i = 0; i < 4*(n-1); i++) {
                         b[i] = 0.0;
                         for (int j = 0; j < 4*(n-1); j++) {
                             A[i][j] = 0.0;
@@ -465,29 +547,32 @@ int main(int argc, char const *argv[]) {
                     // Initialize x array with the new equally spaced points
                     for(int i = 0; i < n; i++) {
                         x[i] = new_X[i];
-                    }
+                    } */
+
+                    // Use code of above if original data is not uniformed spaced
+                    h = X[1] - X[0]; // Assuming uniform spacing in the original data
 
                     // Calculate third derivative in extreme points
                     // fppp[0] = (f(a+3*h) - 3*f(a+2*h) + 3*f(a+h) - f(a))/(h*h*h); // This is O(h)
-                    fppp[0] = (new_Y[3] - 3*new_Y[2] + 3*new_Y[1] - new_Y[0])/(h*h*h); // This is O(h)
+                    fppp[0] = (Y[3] - 3*Y[2] + 3*Y[1] - Y[0])/(h*h*h); // This is O(h)
                     // fppp[n] = (f(b) - 3*f(b-h) + 3*f(b-2*h) -f(b-3*h) )/(h*h*h); // This is O(h)
-                    fppp[n-1] = (new_Y[n-1] - 3*new_Y[n-2] + 3*new_Y[n-3] - new_Y[n-4])/(h*h*h); // This is O(h)
+                    fppp[n-1] = (Y[n-1] - 3*Y[n-2] + 3*Y[n-3] - Y[n-4])/(h*h*h); // This is O(h)
 
                     // For of the inner points
-                    for(int i = 1; i <= n-1; i++) {
+                    for(int i = 1; i <= n-2; i++) {
                         // x[i] = a + i*h;
                         // fppp[i] = (f(x[i]+2*h) - 2*f(x[i]+h) + 2*f(x[i]-h) - f(x[i]-2*h)) / (2*(h*h*h)); // This is O(h²)
-                        fppp[i] = (new_Y[i+2] - 2*new_Y[i+1] + 2*new_Y[i-1] - new_Y[i-2]) / (2*(h*h*h)); // This is O(h²)
+                        fppp[i] = (Y[i+2] - 2*Y[i+1] + 2*Y[i-1] - Y[i-2]) / (2*(h*h*h)); // This is O(h²)
                     }
     
                     // Print results
                     printf("x\t\tf'''(x)\n");
                     for(int i = 0; i <= n; i++) {
-                        printf("%lf\t%lf\n", x[i], fppp[i]);
+                        printf("%lf\t%lf\n", X[i], fppp[i]);
                     }
                 
                     // Save x[i] and fppp[i] in a text file
-                    save_in_txt(x, fppp, n);
+                    save_in_txt(X, fppp, n);
                 
                     // Finally, we print the results.txt file in a graph using Python to visualize the results
                     system("python3 graph_points.py");
@@ -552,7 +637,7 @@ int main(int argc, char const *argv[]) {
                     print_data_points(X, Y, n);
 
                     // 2. Inicializar A y b
-                    for (int i = 0; i < 4*(n-1); i++) {
+                    /* for (int i = 0; i < 4*(n-1); i++) {
                         b[i] = 0.0;
                         for (int j = 0; j < 4*(n-1); j++) {
                             A[i][j] = 0.0;
@@ -637,34 +722,37 @@ int main(int argc, char const *argv[]) {
                     // Initialize x array with original data points
                     for(int i = 0; i < n; i++) {
                         x[i] = X[i];
-                    }
+                    } */
+
+                    // Use code of above if original data is not uniformed spaced
+                    h = X[1] - X[0]; // Assuming uniform spacing in the original data
                     
                     // Calculate first derivative with error O(h²)
                     // Forward difference O(h²) for first point (needs 3 points)
-                    fp[0] = (-new_Y[2] + 4*new_Y[1] - 3*new_Y[0])/(2*h);
+                    fp[0] = (-Y[2] + 4*Y[1] - 3*Y[0])/(2*h);
                     
                     // Backward difference O(h²) for last point (needs 3 points)
-                    fp[n-1] = (3*new_Y[n-1] - 4*new_Y[n-2] + new_Y[n-3])/(2*h);
+                    fp[n-1] = (3*Y[n-1] - 4*Y[n-2] + Y[n-3])/(2*h);
                 
                     // Calculate derivatives for all inner points with appropriate formulas
                     for(int i = 1; i <= n-2; i++) {
-                        if(i >= 2 && i <= n-3) {
+                        // if(i >= 2 && i <= n-3) {
                             // Central difference O(h⁴) when we have 5 points available
-                            fp[i] = (-new_Y[i+2] + 8*new_Y[i+1] - 8*new_Y[i-1] + new_Y[i-2])/(12*h);
-                        } else {
+                        fp[i] = (-Y[i+2] + 8*Y[i+1] - 8*Y[i-1] + Y[i-2])/(12*h);
+                        // } else {
                             // Central difference O(h²) when we only have 3 points
-                            fp[i] = (new_Y[i+1] - new_Y[i-1])/(2*h);
-                        }
+                            // fp[i] = (Y[i+1] - Y[i-1])/(2*h);
+                        // }
                     }
     
                     // Print results
                     printf("x\t\tf'(x)\n");
                     for(int i = 0; i < n; i++) {
-                        printf("%lf\t%lf\n", x[i], fp[i]);
+                        printf("%lf\t%lf\n", X[i], fp[i]);
                     }
                 
                     // Save x[i] and fp[i] in a text file
-                    save_in_txt(x, fp, n-1);
+                    save_in_txt(X, fp, n-1);
                 
                     // Finally, we print the results.txt file in a graph using Python to visualize the results
                     system("python3 graph_points.py");
@@ -725,7 +813,7 @@ int main(int argc, char const *argv[]) {
                     print_data_points(X, Y, n);
 
                     // 2. Inicializar A y b
-                    for (int i = 0; i < 4*(n-1); i++) {
+                    /* for (int i = 0; i < 4*(n-1); i++) {
                         b[i] = 0.0;
                         for (int j = 0; j < 4*(n-1); j++) {
                             A[i][j] = 0.0;
@@ -805,34 +893,37 @@ int main(int argc, char const *argv[]) {
                     // Initialize x array with the new equally spaced points (consistent with new_Y)
                     for(int i = 0; i < n; i++) {
                         x[i] = new_X[i];
-                    }
+                    } */
+
+                    // Use code of above if original data is not uniformed spaced
+                    h = X[1] - X[0]; // Assuming uniform spacing in the original data
 
                     // Calculate second derivative with error O(h²) using spline data
                     // Forward difference O(h²) for first point (needs 4 points)
-                    fpp[0] = (-new_Y[3] + 4*new_Y[2] - 5*new_Y[1] + 2*new_Y[0])/(h*h);
+                    fpp[0] = (-Y[3] + 4*Y[2] - 5*Y[1] + 2*Y[0])/(h*h);
                     
                     // Backward difference O(h²) for last point (needs 4 points)
-                    fpp[n-1] = (2*new_Y[n-1] - 5*new_Y[n-2] + 4*new_Y[n-3] - new_Y[n-4])/(h*h);
+                    fpp[n-1] = (2*Y[n-1] - 5*Y[n-2] + 4*Y[n-3] - Y[n-4])/(h*h);
     
                     // Central difference for inner points
                     for(int i = 1; i <= n-2; i++) {
-                        if(i >= 2 && i <= n-3) {
+                        // if(i >= 2 && i <= n-3) {
                             // 5-point central difference O(h⁴) when possible
-                            fpp[i] = (-new_Y[i+2] + 16*new_Y[i+1] - 30*new_Y[i] + 16*new_Y[i-1] - new_Y[i-2])/(12*h*h);
-                        } else {
+                        fpp[i] = (-Y[i+2] + 16*Y[i+1] - 30*Y[i] + 16*Y[i-1] - Y[i-2])/(12*h*h);
+                        // } else {
                             // 3-point central difference O(h²) when not enough points
-                            fpp[i] = (new_Y[i+1] - 2*new_Y[i] + new_Y[i-1])/(h*h);
-                        }
+                            // fpp[i] = (Y[i+1] - 2*Y[i] + Y[i-1])/(h*h);
+                        // }
                     }
     
                     // Print results
                     printf("x\t\tf''(x)\n");
                     for(int i = 0; i < n; i++) {
-                        printf("%lf\t%lf\n", x[i], fpp[i]);
+                        printf("%lf\t%lf\n", X[i], fpp[i]);
                     }
                 
                     // Save x[i] and fpp[i] in a text file
-                    save_in_txt(x, fpp, n-1);
+                    save_in_txt(X, fpp, n-1);
     
                     // Finally, we print the results.txt file in a graph using Python to visualize the results
                     system("python3 graph_points.py");
@@ -893,7 +984,7 @@ int main(int argc, char const *argv[]) {
                     print_data_points(X, Y, n);
 
                     // 2. Inicializar A y b
-                    for (int i = 0; i < 4*(n-1); i++) {
+                    /* for (int i = 0; i < 4*(n-1); i++) {
                         b[i] = 0.0;
                         for (int j = 0; j < 4*(n-1); j++) {
                             A[i][j] = 0.0;
@@ -969,12 +1060,15 @@ int main(int argc, char const *argv[]) {
                         new_X[i] = X[0] + i * h;
                         new_Y[i] = evaluate_spline(X, solution, n, new_X[i]);
                     }
-
+                    
                     // Initialize x array with the new equally spaced points (consistent with new_Y)
                     for(int i = 0; i < n; i++) {
                         x[i] = new_X[i];
                     }
-
+                    */ 
+                   
+                    // Use code of above if original data is not uniformed spaced
+                    h = X[1] - X[0]; // Assuming uniform spacing in original data
                     // Check minimum points needed for third derivative O(h²)
                     if(n < 7) {
                         printf("Error: Need at least 7 points for third derivative with O(h²) accuracy.\n");
@@ -982,24 +1076,24 @@ int main(int argc, char const *argv[]) {
                     }
                     
                     // Forward difference O(h²) for first point (needs 5 points)
-                    fppp[0] = (-3*new_Y[4] + 14*new_Y[3] - 24*new_Y[2] + 18*new_Y[1] - 5*new_Y[0])/(2*h*h*h);
+                    fppp[0] = (-3*Y[4] + 14*Y[3] - 24*Y[2] + 18*Y[1] - 5*Y[0])/(2*h*h*h);
                     
                     // Backward difference O(h²) for last point (needs 5 points)  
-                    fppp[n-1] = (5*new_Y[n-1] - 18*new_Y[n-2] + 24*new_Y[n-3] - 14*new_Y[n-4] + 3*new_Y[n-5])/(2*h*h*h);
+                    fppp[n-1] = (5*Y[n-1] - 18*Y[n-2] + 24*Y[n-3] - 14*Y[n-4] + 3*Y[n-5])/(2*h*h*h);
                 
                     // Central difference O(h⁴) for inner points
-                    for(int i = 3; i <= n-4; i++) {
-                        fppp[i] = (-new_Y[i+3] + 8*new_Y[i+2] - 13*new_Y[i+1] + 13*new_Y[i-1] - 8*new_Y[i-2] + new_Y[i-3])/(8*h*h*h);
+                    for(int i = 1; i <= n-2; i++) {
+                        fppp[i] = (-Y[i+3] + 8*Y[i+2] - 13*Y[i+1] + 13*Y[i-1] - 8*Y[i-2] + Y[i-3])/(8*h*h*h);
                     }
     
                     // Print results
                     printf("x\t\tf'''(x)\n");
                     for(int i = 0; i < n; i++) {
-                        printf("%lf\t%lf\n", x[i], fppp[i]);
+                        printf("%lf\t%lf\n", X[i], fppp[i]);
                     }
     
                     // Save x[i] and fppp[i] in a text file
-                    save_in_txt(x, fppp, n-1);
+                    save_in_txt(X, fppp, n-1);
     
                     // Finally, we print the results.txt file in a graph using Python to visualize the results
                     system("python3 graph_points.py");
@@ -1012,8 +1106,8 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
-double f(double x) {
-    return x * x * x * x;
+double f(double t) {
+    return 10 * exp(-t/10) * sin(2*t);
 }
 
 void save_in_txt(double x[], double fp[], int n) {
