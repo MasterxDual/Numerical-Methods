@@ -43,6 +43,61 @@ double fprima(double x, double y);  // Nueva función: derivada total de f respe
  */
 double y3prima(double x, double y);
 
+/* 
+    Heun's method has the following improvements over Euler:
+    --> Greater accuracy: Consistently smaller errors ✓
+    --> Expected behavior: Error pattern consistent with the second-order method ✓
+    --> Improved convergence: Errors decrease more quickly ✓
+
+    Euler Method:
+        ✅ Extreme simplicity: Easy to implement and understand
+        ✅ Low computational cost: 1 evaluation of f(x,y) per step
+        ✅ Good for prototyping: Fast for initial testing
+        ✅ Easy error analysis: Predictable behavior
+
+        ❌ Low accuracy: Local truncation error O(h²)
+        ❌ Instability: Can easily diverge with large h
+        ❌ Requires small h to achieve acceptable accuracy
+        ❌ Poor for functions with high curvature
+
+        Ideal Cases:
+        --> Simple problems with near-linear behavior
+        --> When accuracy is not critical
+        --> Teaching and conceptual demonstrations
+
+    Heum Method:
+        ✅ Good accuracy: O(h³) error vs. Euler's O(h²)
+        ✅ More stable: Less prone to divergence
+        ✅ Balanced: Good accuracy-cost balance
+        ✅ Easy to implement: Only two evaluations of f(x,y)
+
+        ❌ Costo moderado: 2 evaluaciones vs 1 de Euler
+        ❌ No óptimo: No es el más preciso de los métodos de 2° orden
+        ❌ Dependencia del predictor: Si el predictor es malo, afecta el corrector
+
+        Ideal cases:
+        --> General applications requiring better than Euler accuracy
+        --> When balancing accuracy and simplicity
+        --> Problems with moderately nonlinear behavior
+
+    Midpoint Method:
+        ✅ High accuracy: Generally more accurate than Heun for the same order
+        ✅ Better for symmetries: Excellent for problems with symmetric behavior
+        ✅ Improved stability: Less sensitive to abrupt changes
+        ✅ Clear geometric interpretation: Slope at the midpoint
+
+        ❌ Heun-like cost: 2 evaluations of f(x,y)
+        ❌ Can underestimate/overestimate: Depending on concavity
+        ❌ Slightly more complex implementation: Midpoint calculation
+
+
+        Ideal cases:
+        --> Problems with smooth and symmetric behavior
+        --> When maximum precision is sought with second-order methods
+        --> Physical systems with harmonic behavior
+
+*/
+
 int main(int argc, char const *argv[]) {
     // General variables
     double X0, Xf, Y0, h;
