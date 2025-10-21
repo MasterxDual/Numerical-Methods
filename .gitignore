@@ -10,6 +10,7 @@ a.out
 
 # Ignore executables without extension
 bisection_regula_falsi
+exercise
 exercise1
 exercise2
 exercise2.1
