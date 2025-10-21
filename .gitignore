@@ -39,3 +39,4 @@ exercise4_spline
 gauss_legendre
 numerical_differentiation
 euler_neum_midpoint
+euler_neum_midpoint_RK4
