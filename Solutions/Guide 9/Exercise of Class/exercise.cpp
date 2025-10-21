@@ -66,7 +66,9 @@ We have the following exercise:
    So we need to verify the solution that finds the methods with the exact solution.
    We test with y(x) = 1/4 * pow(((x*x) + x + 2), 2)
    We can see that's the solution. For more information look for graphs of comparison in the actual directory.
-   We can see that the exact solution is very similar to the aproximations of the four methods.
+   We can see that the exact solution is very similar to the aproximations of the four methods. 
+   The errors are very small too.
+   We can see that Runge-Kutta of order 4 is the most accurate method.
 */
 
 int main(int argc, char const *argv[]) {
