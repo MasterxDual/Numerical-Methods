@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define MAX_SIZE 100
+#define MAX_SIZE 200
 
 /**
  * Function to save computed values to a text file
@@ -42,6 +42,15 @@ double fprima(double x, double y);  // Nueva función: derivada total de f respe
  * @return The value of the third derivative at (x, y)
  */
 double y3prima(double x, double y);
+
+/**
+ * Function to perform a single Runge-Kutta 4th order step
+ * @param x Current x value
+ * @param y Current y value
+ * @param step Step size
+ * @return The new y value after the RK4 step
+ */ 
+double rk4_step(double x, double y, double step);
 
 /* 
     Heun's method has the following improvements over Euler:
@@ -127,6 +136,10 @@ int main(int argc, char const *argv[]) {
         printf("Insert step size h:\n");
         scanf("%lf", &h);
         n = (int)((Xf - X0) / h);
+        if (n > MAX_SIZE) {
+            printf("Error: number of subintervals exceeds maximum size (%d).\n", MAX_SIZE);
+            return 1;
+        }
     }
 
     
@@ -134,7 +147,7 @@ int main(int argc, char const *argv[]) {
     X[0] = X0;
     Y[0] = Y0;
 
-    printf("Insert the method to use: 1. Euler's method 2. Neum Method 3. Midpoint method\n");
+    printf("Insert the method to use: 1. Euler's method (R.K. 1) 2. Heun method (R.K. 2) 3. Midpoint method (R.K. 2) 4. Runge-Kutta of order 4\n");
     scanf("%d", &choice);
 
     switch(choice) {
@@ -217,6 +230,45 @@ int main(int argc, char const *argv[]) {
                        i, X[i], y(X[i]), Y[i], exact_error, local_trunc_error);
             }
             break;
+        case 4:
+            double k1, k2, k3, k4;
+            // Runge-Kutta of order 4
+            for(int i = 0; i <= n-1; i++) {
+                k1 = f(X[i], Y[i]);
+                k2 = f(X[i] + h/2.0, Y[i] + (h/2.0) * k1);
+                k3 = f(X[i] + h/2.0, Y[i] + (h/2.0) * k2);
+                k4 = f(X[i] + h, Y[i] + h * k3);
+                Y[i+1] = Y[i] + (h/6.0) * (k1 + 2*k2 + 2*k3 + k4);
+                X[i+1] = X[i] + h;
+            }
+
+            printf("\n%-10s %-15s %-15s %-15s %-15s %-15s\n", 
+                   "i", "X[i]", "Exact Y", "RK4 Y", "Exact Error", "Local Trunc. Err");
+            printf("-------------------------------------------------------------------------------------------\n");
+            
+            for(int i = 0; i <= n; i++) {
+                exact_error = fabs(y(X[i]) - Y[i]);
+
+                // Here we estimate the local truncation error (LTE) for RK4
+                // Practical estimation of LTE (per step) by comparing h vs h/2
+                double Y_full = Y[i];  // current value with step h
+                double Y_half;
+                if (i == 0) {
+                    Y_half = Y[0]; // not applicable for the first point
+                    local_trunc_error = 0.0;
+                } else {
+                    // Recalculate from X[i-1], Y[i-1] with two steps of h/2
+                    double mid = rk4_step(X[i-1], Y[i-1], h/2.0);
+                    Y_half = rk4_step(X[i-1] + h/2.0, mid, h/2.0);
+
+                    // Local truncation error estimator: (Y_half - Y_full) / (2^{p+1}-1) = /31
+                    local_trunc_error = fabs((Y_half - Y_full) / 15.0);
+                }
+
+                printf("%-10d %-15lf %-15lf %-15lf %-15.2e %-15.2e\n", 
+                       i, X[i], y(X[i]), Y[i], exact_error, local_trunc_error);
+            }
+            break;
     }
 
     
@@ -231,20 +283,29 @@ int main(int argc, char const *argv[]) {
     save_in_txt(X, Y, n);
     
     // Finally, we print the results.txt file in a graph using Python to visualize the results
-    system("python3 graph_points.py");
+    // system("python3 graph_points.py");
+    if (system("test -f graph_points.py") == 0) {
+        system("python3 graph_points.py");
+    } else {
+        printf("⚠️  Warning: 'graph_points.py' not found. Skipping graph generation.\n");
+    }
 
-    
     return 0;
 }
 
 double f(double x, double y) {
-    return (-2 * x * y);
+    return -2 * x * y * y;
 }
 
 double y(double x) {
-    return exp(-x*x);
+    return 1.0 / (x * x + 1.0);
 }
 
+
+/**
+ * Third derivative of y(x) = e^{-x^2}
+ * Computed symbolically as y''' = 4xy(3 - 2x^2)
+ */
 double y3prima(double x, double y) {
     return 4 * x * y * (3 - 2 * x * x);
 }
@@ -254,6 +315,16 @@ double fprima(double x, double y) {
     double fy = -2 * x;
     return fx + fy * f(x, y);
 }
+
+
+double rk4_step(double x, double y, double step) {
+    double k1 = f(x, y);
+    double k2 = f(x + step/2.0, y + (step/2.0) * k1);
+    double k3 = f(x + step/2.0, y + (step/2.0) * k2);
+    double k4 = f(x + step,     y + step * k3);
+    return y + (step/6.0) * (k1 + 2.0*k2 + 2.0*k3 + k4);
+}
+
 
 void save_in_txt(double X[], double Y[], int n) {
     FILE *archivo = fopen("results.txt", "w");
