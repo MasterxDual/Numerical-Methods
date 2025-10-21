@@ -65,6 +65,8 @@ We have the following exercise:
    y(x) = 1/4 * pow(((x*x) + x +- 2), 2) 
    So we need to verify the solution that finds the methods with the exact solution.
    We test with y(x) = 1/4 * pow(((x*x) + x + 2), 2)
+   We can see that's the solution. For more information look for graphs of comparison in the actual directory.
+   We can see that the exact solution is very similar to the aproximations of the four methods.
 */
 
 int main(int argc, char const *argv[]) {
