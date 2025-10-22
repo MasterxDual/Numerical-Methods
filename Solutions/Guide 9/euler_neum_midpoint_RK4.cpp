@@ -52,6 +52,48 @@ double y3prima(double x, double y);
  */ 
 double rk4_step(double x, double y, double step);
 
+/**
+ * Function to calculate convergence factor for Euler's method
+ * @param n Number of subintervals
+ * @param h Step size
+ * @param X0 Initial x value
+ * @param Xf Final x value
+ * @param Y0 Initial y value
+ */ 
+void convergence_factor_euler(int n, double h, double X0, double Xf, double Y0);
+
+/**
+ * Function to calculate convergence factor for Heun's method
+ * @param n Number of subintervals
+ * @param h Step size
+ * @param X0 Initial x value
+ * @param Xf Final x value
+ * @param Y0 Initial y value
+ */
+void convergence_factor_heun(int n, double h, double X0, double Xf, double Y0);
+
+/**
+ * Function to calculate convergence factor for Midpoint method
+ * @param n Number of subintervals
+ * @param h Step size
+ * @param X0 Initial x value
+ * @param Xf Final x value
+ * @param Y0 Initial y value
+ */
+void convergence_factor_midpoint(int n, double h, double X0, double Xf, double Y0);
+
+
+/**
+ * Function to calculate convergence factor for Runge-Kutta 4th order method
+ * @param n Number of subintervals
+ * @param h Step size
+ * @param X0 Initial x value
+ * @param Xf Final x value
+ * @param Y0 Initial y value
+ *  */ 
+void convergence_factor_rk4(int n, double h, double X0, double Xf, double Y0);
+
+
 /* 
     Heun's method has the following improvements over Euler:
     --> Greater accuracy: Consistently smaller errors ✓
@@ -114,8 +156,16 @@ int main(int argc, char const *argv[]) {
     double Xp, Yp;
     int n;
     double X[MAX_SIZE + 1], Y[MAX_SIZE + 1];
+
+    // Number to select to do convergence factor calculation
+    int conv_choice;
+
     // Error to calculate
     double exact_error, local_trunc_error;
+    // Variables for convergence factor calculation
+    double X1[MAX_SIZE + 1], X2[MAX_SIZE + 1], X3[MAX_SIZE + 1];
+    double Y1[MAX_SIZE + 1], Y2[MAX_SIZE + 1], Y3[MAX_SIZE + 1];
+    double Q[MAX_SIZE + 1];
 
     printf("Insert X0 and Xf:\n");
     scanf("%lf %lf", &X0, &Xf);
@@ -152,6 +202,13 @@ int main(int argc, char const *argv[]) {
 
     switch(choice) {
         case 1:
+            printf("Do you want to calculate convergence factor for Euler's method? (1.Yes 2.No)\n");
+            scanf("%d", &conv_choice);
+
+            if(conv_choice == 1) {
+               convergence_factor_euler(n, h, X0, Xf, Y0);
+            }
+            // Euler's Method
             for(int i = 1; i <= n; i++) {
                 // Compute next X incrementally to avoid rounding surprises
                 X[i] = X[i-1] + h; // X[i] = X0 + i*h; equivalently
@@ -180,6 +237,12 @@ int main(int argc, char const *argv[]) {
             }
             break;
         case 2: 
+            printf("Do you want to calculate convergence factor for Heun's method? (1.Yes 2.No)\n");
+            scanf("%d", &conv_choice);
+
+            if(conv_choice == 1) {
+               convergence_factor_heun(n, h, X0, Xf, Y0);
+            }
             for(int i = 1; i <= n; i++) {
                 X[i] = X0 + (i*h);
                 // Neum method
@@ -200,6 +263,12 @@ int main(int argc, char const *argv[]) {
 
             break;
         case 3:
+            printf("Do you want to calculate convergence factor for Midpoint method? (1.Yes 2.No)\n");
+            scanf("%d", &conv_choice);
+
+            if(conv_choice == 1) {
+               convergence_factor_midpoint(n, h, X0, Xf, Y0);
+            }
             // Midpoint method that gave us the teacher in class
             /* for(int i = 1; i <= n; i++) {
                 X[i] = X0 + (i*h/2.0);
@@ -231,6 +300,13 @@ int main(int argc, char const *argv[]) {
             }
             break;
         case 4:
+            printf("Do you want to calculate convergence factor for Runge Kutta of order 4? (1.Yes 2.No)\n");
+            scanf("%d", &conv_choice);
+
+            if(conv_choice == 1) {
+               convergence_factor_rk4(n, h, X0, Xf, Y0);
+            }
+
             double k1, k2, k3, k4;
             // Runge-Kutta of order 4
             for(int i = 0; i <= n-1; i++) {
@@ -339,4 +415,245 @@ void save_in_txt(double X[], double Y[], int n) {
 
     fclose(archivo);
 }
+
+void convergence_factor_euler(int n1, double h1, double X0, double Xf, double Y0) {
+    double h2 = h1 / 2.0;
+    double h3 = h1 / 4.0;
+
+    double Yh[MAX_SIZE + 1], Yh2[MAX_SIZE*2 + 1], Yh4[MAX_SIZE*4 + 1];
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
+    double Q[MAX_SIZE + 1];
+
+    // Inicializaciones
+    Xh[0] = Xh2[0] = Xh4[0] = X0;
+    Yh[0] = Yh2[0] = Yh4[0] = Y0;
+
+    // Euler con paso h
+    for (int i = 0; i < n1; i++) {
+        Xh[i+1] = Xh[i] + h1;
+        Yh[i+1] = Yh[i] + h1 * f(Xh[i], Yh[i]);
+    }
+
+    // Euler con paso h/2
+    for (int i = 0; i < 2*n1; i++) {
+        Xh2[i+1] = Xh2[i] + h2;
+        Yh2[i+1] = Yh2[i] + h2 * f(Xh2[i], Yh2[i]);
+    }
+
+    // Euler con paso h/4
+    for (int i = 0; i < 4*n1; i++) {
+        Xh4[i+1] = Xh4[i] + h3;
+        Yh4[i+1] = Yh4[i] + h3 * f(Xh4[i], Yh4[i]);
+    }
+
+    printf("\n%-10s %-15s %-15s\n", "i", "x_i", "Q_i");
+    printf("------------------------------------------\n");
+
+    // Cálculo del factor de convergencia en los mismos puntos X
+    // Note: Q[0] is not defined because at the initial point there is no error
+    // (it's the exact initial condition), so we start from i=1
+    Q[0] = 0.0;  // Not defined, set to 0 by convention
+    
+    for (int i = 1; i <= n1; i++) {
+        int idx2 = 2*i;   // posición equivalente para h/2
+        int idx4 = 4*i;   // posición equivalente para h/4
+        double num = fabs(Yh[i] - Yh2[idx2]);
+        double den = fabs(Yh2[idx2] - Yh4[idx4]);
+
+        if (den > 1e-12) {
+            Q[i] = log(num / den) / log(2.0);
+            printf("%-10d %-15lf %-15lf\n", i, Xh[i], Q[i]);
+        } else {
+            Q[i] = 0.0;
+            printf("%-10d %-15lf %-15s\n", i, Xh[i], "N/A (no error)");
+        }
+    }
+
+    save_in_txt(Xh, Q, n1);
+    rename("results.txt", "convergence_euler.txt");
+
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
+    } else {
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
+    }
+}
+
+void convergence_factor_heun(int n1, double h1, double X0, double Xf, double Y0) {
+    double h2 = h1 / 2.0;
+    double h3 = h1 / 4.0;
+
+    double Yh[MAX_SIZE + 1], Yh2[MAX_SIZE*2 + 1], Yh4[MAX_SIZE*4 + 1];
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
+    double Q[MAX_SIZE + 1];
+
+    Xh[0] = Xh2[0] = Xh4[0] = X0;
+    Yh[0] = Yh2[0] = Yh4[0] = Y0;
+
+    // Heun con paso h
+    for (int i = 0; i < n1; i++) {
+        double predictor = Yh[i] + h1 * f(Xh[i], Yh[i]);
+        Yh[i+1] = Yh[i] + (h1/2.0)*(f(Xh[i], Yh[i]) + f(Xh[i]+h1, predictor));
+        Xh[i+1] = Xh[i] + h1;
+    }
+
+    // Heun con paso h/2
+    for (int i = 0; i < 2*n1; i++) {
+        double predictor = Yh2[i] + h2 * f(Xh2[i], Yh2[i]);
+        Yh2[i+1] = Yh2[i] + (h2/2.0)*(f(Xh2[i], Yh2[i]) + f(Xh2[i]+h2, predictor));
+        Xh2[i+1] = Xh2[i] + h2;
+    }
+
+    // Heun con paso h/4
+    for (int i = 0; i < 4*n1; i++) {
+        double predictor = Yh4[i] + h3 * f(Xh4[i], Yh4[i]);
+        Yh4[i+1] = Yh4[i] + (h3/2.0)*(f(Xh4[i], Yh4[i]) + f(Xh4[i]+h3, predictor));
+        Xh4[i+1] = Xh4[i] + h3;
+    }
+
+    printf("\n%-10s %-15s %-15s\n", "i", "x_i", "Q_i");
+    printf("------------------------------------------\n");
+    Q[0] = 0.0;
+
+    for (int i = 1; i <= n1; i++) {
+        int idx2 = 2*i;
+        int idx4 = 4*i;
+        double num = fabs(Yh[i] - Yh2[idx2]);
+        double den = fabs(Yh2[idx2] - Yh4[idx4]);
+
+        if (den > 1e-12) {
+            Q[i] = log(num / den) / log(2.0);
+            printf("%-10d %-15lf %-15lf\n", i, Xh[i], Q[i]);
+        } else {
+            Q[i] = 0.0;
+            printf("%-10d %-15lf %-15s\n", i, Xh[i], "N/A");
+        }
+    }
+
+    save_in_txt(Xh, Q, n1);
+    rename("results.txt", "convergence_heun.txt");
+
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
+    }
+}
+
+void convergence_factor_midpoint(int n1, double h1, double X0, double Xf, double Y0) {
+    double h2 = h1 / 2.0;
+    double h3 = h1 / 4.0;
+
+    double Yh[MAX_SIZE + 1], Yh2[MAX_SIZE*2 + 1], Yh4[MAX_SIZE*4 + 1];
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
+    double Q[MAX_SIZE + 1];
+
+    Xh[0] = Xh2[0] = Xh4[0] = X0;
+    Yh[0] = Yh2[0] = Yh4[0] = Y0;
+
+    // Midpoint paso h
+    for (int i = 0; i < n1; i++) {
+        double k1 = f(Xh[i], Yh[i]);
+        double k2 = f(Xh[i] + h1/2.0, Yh[i] + (h1/2.0)*k1);
+        Yh[i+1] = Yh[i] + h1*k2;
+        Xh[i+1] = Xh[i] + h1;
+    }
+
+    // Midpoint paso h/2
+    for (int i = 0; i < 2*n1; i++) {
+        double k1 = f(Xh2[i], Yh2[i]);
+        double k2 = f(Xh2[i] + h2/2.0, Yh2[i] + (h2/2.0)*k1);
+        Yh2[i+1] = Yh2[i] + h2*k2;
+        Xh2[i+1] = Xh2[i] + h2;
+    }
+
+    // Midpoint paso h/4
+    for (int i = 0; i < 4*n1; i++) {
+        double k1 = f(Xh4[i], Yh4[i]);
+        double k2 = f(Xh4[i] + h3/2.0, Yh4[i] + (h3/2.0)*k1);
+        Yh4[i+1] = Yh4[i] + h3*k2;
+        Xh4[i+1] = Xh4[i] + h3;
+    }
+
+    printf("\n%-10s %-15s %-15s\n", "i", "x_i", "Q_i");
+    printf("------------------------------------------\n");
+    Q[0] = 0.0;
+
+    for (int i = 1; i <= n1; i++) {
+        int idx2 = 2*i;
+        int idx4 = 4*i;
+        double num = fabs(Yh[i] - Yh2[idx2]);
+        double den = fabs(Yh2[idx2] - Yh4[idx4]);
+
+        if (den > 1e-12) {
+            Q[i] = log(num / den) / log(2.0);
+            printf("%-10d %-15lf %-15lf\n", i, Xh[i], Q[i]);
+        } else {
+            Q[i] = 0.0;
+            printf("%-10d %-15lf %-15s\n", i, Xh[i], "N/A");
+        }
+    }
+
+    save_in_txt(Xh, Q, n1);
+    rename("results.txt", "convergence_midpoint.txt");
+
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
+    }
+}
+
+void convergence_factor_rk4(int n1, double h1, double X0, double Xf, double Y0) {
+    double h2 = h1 / 2.0;
+    double h3 = h1 / 4.0;
+
+    double Yh[MAX_SIZE + 1], Yh2[MAX_SIZE*2 + 1], Yh4[MAX_SIZE*4 + 1];
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
+    double Q[MAX_SIZE + 1];
+
+    Xh[0] = Xh2[0] = Xh4[0] = X0;
+    Yh[0] = Yh2[0] = Yh4[0] = Y0;
+
+    // RK4 paso h
+    for (int i = 0; i < n1; i++) {
+        Yh[i+1] = rk4_step(Xh[i], Yh[i], h1);
+        Xh[i+1] = Xh[i] + h1;
+    }
+
+    // RK4 paso h/2
+    for (int i = 0; i < 2*n1; i++) {
+        Yh2[i+1] = rk4_step(Xh2[i], Yh2[i], h2);
+        Xh2[i+1] = Xh2[i] + h2;
+    }
+
+    // RK4 paso h/4
+    for (int i = 0; i < 4*n1; i++) {
+        Yh4[i+1] = rk4_step(Xh4[i], Yh4[i], h3);
+        Xh4[i+1] = Xh4[i] + h3;
+    }
+
+    printf("\n%-10s %-15s %-15s\n", "i", "x_i", "Q_i");
+    printf("------------------------------------------\n");
+    Q[0] = 0.0;
+
+    for (int i = 1; i <= n1; i++) {
+        int idx2 = 2*i;
+        int idx4 = 4*i;
+        double num = fabs(Yh[i] - Yh2[idx2]);
+        double den = fabs(Yh2[idx2] - Yh4[idx4]);
+
+        if (den > 1e-12) {
+            Q[i] = log(num / den) / log(2.0);
+            printf("%-10d %-15lf %-15lf\n", i, Xh[i], Q[i]);
+        } else {
+            Q[i] = 0.0;
+            printf("%-10d %-15lf %-15s\n", i, Xh[i], "N/A");
+        }
+    }
+
+    save_in_txt(Xh, Q, n1);
+    rename("results.txt", "convergence_rk4.txt");
+
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
+    }
+}
+
 
