@@ -12,7 +12,8 @@ y_euler = data[:, 1]
 
 # --- Compute the exact analytical solution y(x) = (2/3) * x^(3/2) ---
 x_exact = np.linspace(min(x_euler), max(x_euler), 200)  # 200 points for smooth curve
-y_exact = (2.0 / 3.0) * np.power(x_exact, 1.5)
+# y_exact = (2.0 / 3.0) * np.power(x_exact, 1.5)
+y_exact = 0*x_exact
 
 # --- Plot both curves ---
 plt.figure(figsize=(8, 6))
@@ -21,7 +22,7 @@ plt.figure(figsize=(8, 6))
 plt.plot(x_euler, y_euler, 'ro-', label="Euler Method", markersize=5)
 
 # Exact solution curve
-plt.plot(x_exact, y_exact, 'b-', label="Exact Solution", linewidth=2)
+plt.plot(x_exact, y_exact, 'b-', label="Exact Solution y(t)=0", linewidth=2)
 
 # --- Graph formatting ---
 plt.title("Comparison between Euler's Method and Exact Solution", fontsize=13)
