@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define MAX_SIZE 100
+#define MAX_SIZE 10000
 
 /**
  * Function to save computed values to a text file
@@ -41,9 +41,11 @@ double fprima(double x, double y);
     For y(0) = 0 we dont have solutions for Euler so it doesn't reproduce it.
 
     With solution y(t) = 0 and y(0) = 10e-16 we have the graph called "comparison_euler_exact_c"
-    We can see that solution reproduces quite well the exact solution for h = 0.1
+    We can see that solution doesn't reproduce the exact solution for h = 0.1
     For h = 0.01 we have a better approximation as expected in graph called "comparison_euler_exact_d"
-    For y(0) = 0 we don't have solutions for Euler so it doesn't reproduce it.
+    For y(0) = 0 we have the graph called "comparison_euler_exact_d" 
+    We can see that solution reproduces quite well the exact solution for h = 0.1
+
 
     In conclusion, we can see that with both solutions y1(t) and y2(t) Euler's method is equal. I don't know why.
 */
