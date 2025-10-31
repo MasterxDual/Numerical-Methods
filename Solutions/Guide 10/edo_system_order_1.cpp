@@ -218,26 +218,96 @@ void convergence_factor_euler_3(int n1, double h1, double X0, double Xf,
                                 const char *filename3);
 
 /**
- * Function to calculate convergence factor for Heun's method
- * @param n Number of subintervals
- * @param h Step size
+ * Function to calculate convergence factor for Heun method for a system of 2 EDOs
+ * @param n1 Number of subintervals
+ * @param h1 Step size
  * @param X0 Initial x value
  * @param Xf Final x value
- * @param Y0 Initial y value
+ * @param Y10 Initial y1 value
+ * @param Y20 Initial y2 value
+ * @param f1 Pointer to the first function f1(x, y1, y2)
+ * @param f2 Pointer to the second function f2(x, y1, y2)
+ * @param filename1 Name of the output file for the first variable
+ * @param filename2 Name of the output file for the second variable
  */
-void convergence_factor_heun(int n, double h, double X0, double Xf, double Y0);
+void convergence_factor_heun_2(int n1, double h1, double X0, double Xf,
+                               double Y10, double Y20,
+                               double (*f1)(double, double, double),
+                               double (*f2)(double, double, double),
+                               const char *filename1,
+                               const char *filename2);
 
 /**
- * Function to calculate convergence factor for Midpoint method
- * @param n Number of subintervals
- * @param h Step size
+ * Function to calculate convergence factor for Heun method for a system of 3 EDOs
+ * @param n1 Number of subintervals
+ * @param h1 Step size
  * @param X0 Initial x value
  * @param Xf Final x value
- * @param Y0 Initial y value
+ * @param Y10 Initial y1 value
+ * @param Y20 Initial y2 value
+ * @param Y30 Initial y3 value
+ * @param f1 Pointer to the first function f1(x, y1, y2, y3)
+ * @param f2 Pointer to the second function f2(x, y1, y2, y3)
+ * @param f3 Pointer to the third function f3(x, y1, y2, y3)
+ * @param filename1 Name of the output file for the first variable
+ * @param filename2 Name of the output file for the second variable
+ * @param filename3 Name of the output file for the third variable
  */
-void convergence_factor_midpoint(int n, double h, double X0, double Xf, double Y0);
+void convergence_factor_heun_3(int n1, double h1, double X0, double Xf,
+                               double Y10, double Y20, double Y30,
+                               double (*f1)(double, double, double, double),
+                               double (*f2)(double, double, double, double),
+                               double (*f3)(double, double, double, double),
+                               const char *filename1,
+                               const char *filename2,
+                               const char *filename3);
+
+/**
+ * Function to calculate convergence factor for Midpoint method for a system of 2 EDOs
+ * @param n1 Number of subintervals
+ * @param h1 Step size
+ * @param X0 Initial x value
+ * @param Xf Final x value
+ * @param Y10 Initial y1 value
+ * @param Y20 Initial y2 value
+ * @param f1 Pointer to the first function f1(x, y1, y2)
+ * @param f2 Pointer to the second function f2(x, y1, y2)
+ * @param fileQ1 Name of the output file for the first variable
+ * @param fileQ2 Name of the output file for the second variable
+ */
+void convergence_factor_midpoint_2(int n1, double h1, double X0, double Xf,
+                                   double Y10, double Y20,
+                                   double (*f1)(double, double, double),
+                                   double (*f2)(double, double, double),
+                                   const char *fileQ1,
+                                   const char *fileQ2);
 
 
+/**
+ * Function to calculate convergence factor for Midpoint method for a system of 3 EDOs
+ * @param n1 Number of subintervals
+ * @param h1 Step size
+ * @param X0 Initial x value
+ * @param Xf Final x value
+ * @param Y10 Initial y1 value
+ * @param Y20 Initial y2 value
+ * @param Y30 Initial y3 value
+ * @param f1 Pointer to the first function f1(x, y1, y2, y3)
+ * @param f2 Pointer to the second function f2(x, y1, y2, y3)
+ * @param f3 Pointer to the third function f3(x, y1, y2, y3)
+ * @param fileQ1 Name of the output file for the first variable
+ * @param fileQ2 Name of the output file for the second variable
+ * @param fileQ3 Name of the output file for the third variable
+ */
+void convergence_factor_midpoint_3(int n1, double h1, double X0, double Xf,
+                                   double Y10, double Y20, double Y30,
+                                   double (*f1)(double, double, double, double),
+                                   double (*f2)(double, double, double, double),
+                                   double (*f3)(double, double, double, double),
+                                   const char *fileQ1,
+                                   const char *fileQ2,
+                                   const char *fileQ3);
+                                   
 /**
  * Function to calculate convergence factor for RK4 method for a system of 2 EDOs
  * @param n1 Number of subintervals
@@ -477,63 +547,362 @@ int main(int argc, char const *argv[]) {
                 }
             }
             break;
-        /* case 2: 
-            printf("Do you want to calculate convergence factor for Heun's method? (1.Yes 2.No)\n");
-            scanf("%d", &conv_choice);
+        case 2: 
+            printf("How many EDO's does it have your system? (2 or 3)\n");
+            scanf("%d", &edo_count);
 
-            if(conv_choice == 1) {
-               convergence_factor_heun(n, h, X0, Xf, Y0);
-            }
-            for(int i = 1; i <= n; i++) {
-                X[i] = X0 + (i*h);
-                // Neum method
-                Xp = X[i] + h;
-                Yp = Y[i-1] + h * f(X[i-1], Y[i-1]);
-                Y[i] = Y[i-1] + (h/2.0) * (f(X[i-1], Y[i-1]) + f(Xp, Yp));
-            }
-            printf("\n%-10s %-15s %-15s %-15s %-15s %-15s\n", 
-                    "i", "X[i]", "Exact Y", "Heun Y", "Exact Error", "Local Trunc. Err");
-            printf("-------------------------------------------------------------------------------------------\n");
+            if (edo_count == 2) {
+                X[0] = X0;
+                printf("Insert initial data Y01 = Y1(X0):\n");
+                scanf("%lf", &Y1[0]);
+                printf("Insert initial data Y02 = Y2(X0):\n");
+                scanf("%lf", &Y2[0]);
 
-            for(int i = 0; i <= n; i++) {
-                exact_error = fabs(y(X[i]) - Y[i]);
-                local_trunc_error = (pow(h, 3) / 12.0) * y3prima(X[i], y(X[i]));
-                printf("%-10d %-15lf %-15lf %-15lf %-15lf %-15lf\n", 
-                       i, X[i], y(X[i]), Y[i], exact_error, local_trunc_error);
-            }
+                printf("Do you want to calculate convergence factor for Heun's method? (1.Yes 2.No)\n");
+                scanf("%d", &conv_choice);
 
-            break; */
-        /* case 3: */
-            /* printf("Do you want to calculate convergence factor for Midpoint method? (1.Yes 2.No)\n");
-            scanf("%d", &conv_choice);
-
-            if(conv_choice == 1) {
-               convergence_factor_midpoint(n, h, X0, Xf, Y0);
-            } */
+                if (conv_choice == 1) {
+                    convergence_factor_heun_2(
+                        n, h, X0, Xf, Y1[0], Y2[0], 
+                        f12, f22, 
+                        "convergence_heun_edo2.txt", 
+                        "convergence_heun2_edo2.txt"
+                    );
+                }
             
+                // Coefficients of prediction and correction
+                double k11, k12, k21, k22;
 
-            // Midpoint method that gave me ChatGPT
-            /* for(int i = 1; i <= n; i++) {
-                X[i] = X0 + (i * h);
-                // Slope (pendiente) at the start of the subinterval
-                double k1 = f(X[i-1], Y[i-1]);
-                // Slope at midpoint using Euler predictor
-                double k2 = f(X[i-1] + h/2.0, Y[i-1] + (h/2.0) * k1);
-                // Use the slope at the midpoint to move forward
-                Y[i] = Y[i-1] + h * k2;
-            }
-        
-            printf("\n%-10s %-15s %-15s %-15s %-15s %-15s\n", 
-                   "i", "X[i]", "Exact Y", "Midpoint Y", "Exact Error", "Local Trunc. Err");
-            printf("-------------------------------------------------------------------------------------------\n");
+                // Principal for of Heun's method for systems of 2 EDOs
+                for (int i = 0; i < n; i++) {
+                    double x_i = X[i];
+                    double y1_i = Y1[i];
+                    double y2_i = Y2[i];
+
+                    // Prediction (Euler)
+                    k11 = f12(x_i, y1_i, y2_i);
+                    k12 = f22(x_i, y1_i, y2_i);
+                    double y1_pred = y1_i + h * k11;
+                    double y2_pred = y2_i + h * k12;
+                
+                    // Correction (Heun)
+                    k21 = f12(x_i + h, y1_pred, y2_pred);
+                    k22 = f22(x_i + h, y1_pred, y2_pred);
+                
+                    Y1[i+1] = y1_i + (h / 2.0) * (k11 + k21);
+                    Y2[i+1] = y2_i + (h / 2.0) * (k12 + k22);
+                    X[i+1] = x_i + h;
+                }
             
-            for(int i = 0; i <= n; i++) {
-                exact_error = fabs(y(X[i]) - Y[i]);
-                local_trunc_error = (pow(h, 3) / 24.0) * y3prima(X[i], y(X[i]));
-                printf("%-10d %-15lf %-15lf %-15lf %-15lf %-15lf\n", 
-                       i, X[i], y(X[i]), Y[i], exact_error, local_trunc_error);
+                // Print results Y1
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y1", "Heun Y1", "Exact Error");
+                printf("-------------------------------------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y1(X[i]) - Y1[i]);
+                    // double local_trunc_error = (pow(h, 3) / 12.0) * y3prima2(X[i], y1(X[i]), y2(X[i]), f12); 
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y1(X[i]), Y1[i], exact_error);
+                }
+
+                // Print results Y2
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y2", "Heun Y2", "Exact Error");
+                printf("-------------------------------------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y2(X[i]) - Y2[i]);
+                    // double local_trunc_error = (pow(h, 3) / 12.0) * y3prima2(X[i], y1(X[i]), y2(X[i]), f22); 
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y2(X[i]), Y2[i], exact_error);
+                }
+            
+                // Show final results
+                printf("\nX[i]\t\tY1[i]\t\tY2[i]\n");
+                for (int i = 0; i <= n; i++) {
+                    printf("%lf\t%lf\t%lf\n", X[i], Y1[i], Y2[i]);
+                }
+            
+                // Guardar resultados
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+            
+                // Graficar con Python (opcional)
+                if (system("test -f graph_points_edo2.py") == 0) {
+                    system("python3 graph_points_edo2.py");
+                } else {
+                    printf("⚠️  Warning: 'graph_points_edo2.py' not found. Skipping graph generation.\n");
+                }
+            } else if(edo_count == 3) {
+                X[0] = X0;
+                printf("Insert initial data Y01 = Y1(X0):\n");
+                scanf("%lf", &Y1[0]);
+                printf("Insert initial data Y02 = Y2(X0):\n");
+                scanf("%lf", &Y2[0]);
+                printf("Insert initial data Y03 = Y3(X0):\n");
+                scanf("%lf", &Y3[0]);
+
+                printf("Do you want to calculate convergence factor for Heun's method? (1.Yes 2.No)\n");
+                scanf("%d", &conv_choice);
+
+                if (conv_choice == 1) {
+                    convergence_factor_heun_3(
+                        n, h, X0, Xf, Y1[0], Y2[0], Y3[0],
+                        f13, f23, f33,
+                        "convergence_heun_edo3.txt",
+                        "convergence_heun2_edo3.txt",
+                        "convergence_heun3_edo3.txt"
+                    );
+                }
+
+                // Coefficients of prediction and correction
+                double k11, k12, k13, k21, k22, k23;
+
+                // Heun method for 3 EDOs
+                for (int i = 0; i < n; i++) {
+                    double x_i = X[i];
+                    double y1_i = Y1[i];
+                    double y2_i = Y2[i];
+                    double y3_i = Y3[i];
+                
+                    // Prediction (Euler)
+                    k11 = f13(x_i, y1_i, y2_i, y3_i);
+                    k12 = f23(x_i, y1_i, y2_i, y3_i);
+                    k13 = f33(x_i, y1_i, y2_i, y3_i);
+                
+                    double y1_pred = y1_i + h * k11;
+                    double y2_pred = y2_i + h * k12;
+                    double y3_pred = y3_i + h * k13;
+                
+                    // Correction (Heun)
+                    k21 = f13(x_i + h, y1_pred, y2_pred, y3_pred);
+                    k22 = f23(x_i + h, y1_pred, y2_pred, y3_pred);
+                    k23 = f33(x_i + h, y1_pred, y2_pred, y3_pred);
+                
+                    Y1[i+1] = y1_i + (h / 2.0) * (k11 + k21);
+                    Y2[i+1] = y2_i + (h / 2.0) * (k12 + k22);
+                    Y3[i+1] = y3_i + (h / 2.0) * (k13 + k23);
+                
+                    X[i+1] = x_i + h;
+                }
+
+                // ----------- Print results for Y1 -----------
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n",
+                       "i", "X[i]", "Exact Y1", "Heun Y1", "Exact Error");
+                printf("-------------------------------------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y1(X[i]) - Y1[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n",
+                           i, X[i], y1(X[i]), Y1[i], exact_error);
+                }
+
+                // ----------- Print results for Y2 -----------
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n",
+                       "i", "X[i]", "Exact Y2", "Heun Y2", "Exact Error");
+                printf("-------------------------------------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y2(X[i]) - Y2[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n",
+                           i, X[i], y2(X[i]), Y2[i], exact_error);
+                }
+
+                // ----------- Print results for Y3 -----------
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n",
+                       "i", "X[i]", "Exact Y3", "Heun Y3", "Exact Error");
+                printf("-------------------------------------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y3(X[i]) - Y3[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n",
+                           i, X[i], y3(X[i]), Y3[i], exact_error);
+                }
+
+                // Save results
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+                save_in_txt("results_Y3.txt", X, Y3, n);
+
+                // Optional graph
+                if (system("test -f graph_points_edo3.py") == 0) {
+                    system("python3 graph_points_edo3.py");
+                } else {
+                    printf("⚠️  Warning: 'graph_points_edo3.py' not found. Skipping graph generation.\n");
+                }
+
             }
-            break; */
+            break;
+         case 3:
+            printf("How many EDO's does it have your system? (2 or 3)\n");
+            scanf("%d", &edo_count);
+
+            if (edo_count == 2) {
+                X[0] = X0;
+                printf("Insert initial data Y01 = Y1(X0):\n");
+                scanf("%lf", &Y1[0]);
+                printf("Insert initial data Y02 = Y2(X0):\n");
+                scanf("%lf", &Y2[0]);
+    
+                printf("Do you want to calculate convergence factor for Heun's method? (1.Yes 2.No)\n");
+                scanf("%d", &conv_choice);
+    
+                if (conv_choice == 1) {
+                    convergence_factor_midpoint_2(
+                        n, h, X0, Xf, Y1[0], Y2[0],
+                        f12, f22,
+                        "convergence_midpoint_edo2.txt",
+                        "convergence_midpoint2_edo2.txt"
+                    );
+                }
+    
+                // Midpoint method for systems of 2 EDOs
+                for (int i = 0; i < n; i++) {
+                    double x_i = X[i];
+                    double y1_i = Y1[i];
+                    double y2_i = Y2[i];
+                
+                    // Paso 1: Calcular k1
+                    double k11 = f12(x_i, y1_i, y2_i);
+                    double k12 = f22(x_i, y1_i, y2_i);
+                
+                    // Paso 2: Calcular k2 (en el punto medio)
+                    double k21 = f12(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12);
+                    double k22 = f22(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12);
+                
+                    // Paso 3: Actualizar
+                    Y1[i+1] = y1_i + h * k21;
+                    Y2[i+1] = y2_i + h * k22;
+                    X[i+1] = x_i + h;
+                }
+            
+                // Print results Y1
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y1", "Midpoint Y1", "Exact Error");
+                printf("-------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y1(X[i]) - Y1[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y1(X[i]), Y1[i], exact_error);
+                }
+
+                // Print results Y2
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y2", "Midpoint Y2", "Exact Error");
+                printf("-------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y2(X[i]) - Y2[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y2(X[i]), Y2[i], exact_error);
+                }
+
+                // Save results to files
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+    
+                // Graph results using Python
+                if (system("test -f graph_points_edo2.py") == 0) {
+                    system("python3 graph_points_edo2.py");
+                } else {
+                    printf("⚠️  Warning: 'graph_points_edo2.py' not found. Skipping graph generation.\n");
+                }
+            } else if(edo_count == 3) {
+                X[0] = X0;
+
+                printf("Insert initial data Y01 = Y1(X0):\n");
+                scanf("%lf", &Y1[0]);
+                printf("Insert initial data Y02 = Y2(X0):\n");
+                scanf("%lf", &Y2[0]);
+                printf("Insert initial data Y03 = Y3(X0):\n");
+                scanf("%lf", &Y3[0]);
+
+                printf("Do you want to calculate convergence factor for Midpoint method? (1.Yes 2.No)\n");
+                scanf("%d", &conv_choice);
+
+                if (conv_choice == 1) {
+                    convergence_factor_midpoint_3(
+                        n, h, X0, Xf,
+                        Y1[0], Y2[0], Y3[0],
+                        f13, f23, f33,
+                        "convergence_midpoint_edo3.txt",
+                        "convergence_midpoint2_edo3.txt",
+                        "convergence_midpoint3_edo3.txt"
+                    );
+                }
+
+                // ---------- Midpoint method for systems of 3 EDOs ----------
+                for (int i = 0; i < n; i++) {
+                    double x_i = X[i];
+                    double y1_i = Y1[i];
+                    double y2_i = Y2[i];
+                    double y3_i = Y3[i];
+                
+                    // Paso 1: Calcular k1
+                    double k11 = f13(x_i, y1_i, y2_i, y3_i);
+                    double k12 = f23(x_i, y1_i, y2_i, y3_i);
+                    double k13 = f33(x_i, y1_i, y2_i, y3_i);
+                
+                    // Paso 2: Calcular k2 (en el punto medio)
+                    double k21 = f13(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12, y3_i + (h/2.0)*k13);
+                    double k22 = f23(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12, y3_i + (h/2.0)*k13);
+                    double k23 = f33(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12, y3_i + (h/2.0)*k13);
+                
+                    // Paso 3: Actualizar
+                    Y1[i+1] = y1_i + h * k21;
+                    Y2[i+1] = y2_i + h * k22;
+                    Y3[i+1] = y3_i + h * k23;
+                    X[i+1] = x_i + h;
+                }
+
+                // ---------- Print results for Y1 ----------
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y1", "Midpoint Y1", "Exact Error");
+                printf("-------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y1(X[i]) - Y1[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y1(X[i]), Y1[i], exact_error);
+                }
+
+                // ---------- Print results for Y2 ----------
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y2", "Midpoint Y2", "Exact Error");
+                printf("-------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y2(X[i]) - Y2[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y2(X[i]), Y2[i], exact_error);
+                }
+
+                // ---------- Print results for Y3 ----------
+                printf("\n%-10s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y3", "Midpoint Y3", "Exact Error");
+                printf("-------------------------------------------------------------\n");
+                
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y3(X[i]) - Y3[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.3e\n", 
+                           i, X[i], y3(X[i]), Y3[i], exact_error);
+                }
+
+                // ---------- Save results to files ----------
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+                save_in_txt("results_Y3.txt", X, Y3, n);
+
+                // ---------- Graph results using Python ----------
+                if (system("test -f graph_points_edo3.py") == 0) {
+                    system("python3 graph_points_edo3.py");
+                } else {
+                    printf("⚠️  Warning: 'graph_points_edo3.py' not found. Skipping graph generation.\n");
+                }
+            }
+            break; 
         case 4:
             printf("How many EDO's does it have you system? (2 or 3)\n");
             scanf("%d", &edo_count);
@@ -625,41 +994,118 @@ int main(int argc, char const *argv[]) {
                 printf("Insert initial data Y03 = Y3(X0):\n");
                 scanf("%lf", &Y3[0]);
 
-                printf("Do you want to calculate convergence factor for Runge Kutta's 4 method? (1.Yes 2.No)\n");
+                printf("Do you want to calculate convergence factor for Runge-Kutta's 4 method? (1.Yes 2.No)\n");
                 scanf("%d", &conv_choice);
-                
-                if(conv_choice == 1) {
-                    convergence_factor_rk4_3(n, h, X0, Y1[0], Y2[0], Y3[0], f13, f23, f33,
-                             "convergence_Q1.txt",
-                             "convergence_Q2.txt",
-                             "convergence_Q3.txt");
+
+                if (conv_choice == 1) {
+                    convergence_factor_rk4_3(
+                        n, h, X0, Y1[0], Y2[0], Y3[0],
+                        f13, f23, f33,
+                        "convergence_rk4_edo3.txt",
+                        "convergence_rk42_edo3.txt",
+                        "convergence_rk43_edo3.txt"
+                    );
                 }
 
-                // Calculate Euler method for the system of 3 EDOs
-                for(int i = 0; i <= n-1; i++) {
-                    X[i+1] = X[i] + h;
-                    Y1[i+1] = Y1[i] + h * f13(X[i], Y1[i], Y2[i], Y3[i]);
-                    Y2[i+1] = Y2[i] + h * f23(X[i], Y1[i], Y2[i], Y3[i]);
-                    Y3[i+1] = Y3[i] + h * f33(X[i], Y1[i], Y2[i], Y3[i]);
-                }
+                // Coefficients of Runge-Kutta 4
+                double k11, k12, k13;
+                double k21, k22, k23;
+                double k31, k32, k33;
+                double k41, k42, k43;
+
+                // Principal for of integration
+                for (int i = 0; i < n; i++) {
+                    double x_i = X[i];
+                    double y1_i = Y1[i];
+                    double y2_i = Y2[i];
+                    double y3_i = Y3[i];
                 
-                // Print results
-                printf("X[i]\t\tY1[i]\tY2[i]\tY3[i]\n");
-                // Print all computed points including the last one
-                for(int i = 0; i <= n; i++) {
-                    printf("%lf\t%lf\t%lf\t%lf\n", X[i], Y1[i], Y2[i], Y3[i]);
+                    // --- Step 1 1 ---
+                    k11 = f13(x_i, y1_i, y2_i, y3_i);
+                    k12 = f23(x_i, y1_i, y2_i, y3_i);
+                    k13 = f33(x_i, y1_i, y2_i, y3_i);
+                
+                    // --- Step 2 ---
+                    k21 = f13(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12, y3_i + (h/2.0)*k13);
+                    k22 = f23(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12, y3_i + (h/2.0)*k13);
+                    k23 = f33(x_i + h/2.0, y1_i + (h/2.0)*k11, y2_i + (h/2.0)*k12, y3_i + (h/2.0)*k13);
+                
+                    // --- Step 3 ---
+                    k31 = f13(x_i + h/2.0, y1_i + (h/2.0)*k21, y2_i + (h/2.0)*k22, y3_i + (h/2.0)*k23);
+                    k32 = f23(x_i + h/2.0, y1_i + (h/2.0)*k21, y2_i + (h/2.0)*k22, y3_i + (h/2.0)*k23);
+                    k33 = f33(x_i + h/2.0, y1_i + (h/2.0)*k21, y2_i + (h/2.0)*k22, y3_i + (h/2.0)*k23);
+                
+                    // --- Step 4 ---
+                    k41 = f13(x_i + h, y1_i + h*k31, y2_i + h*k32, y3_i + h*k33);
+                    k42 = f23(x_i + h, y1_i + h*k31, y2_i + h*k32, y3_i + h*k33);
+                    k43 = f33(x_i + h, y1_i + h*k31, y2_i + h*k32, y3_i + h*k33);
+                
+                    // --- Update ---
+                    Y1[i+1] = y1_i + (h/6.0) * (k11 + 2*k21 + 2*k31 + k41);
+                    Y2[i+1] = y2_i + (h/6.0) * (k12 + 2*k22 + 2*k32 + k42);
+                    Y3[i+1] = y3_i + (h/6.0) * (k13 + 2*k23 + 2*k33 + k43);
+                    X[i+1] = x_i + h;
                 }
-            
-                // Save x[i] and Y[i] in results.txt]
-                save_in_txt("results_Y1", X, Y1, n);
-                save_in_txt("results_Y2", X, Y2, n);
-                save_in_txt("results_Y3", X, Y3, n);
-                // Finally, we print the results.txt file in a graph using Python to visualize the results
-                // system("python3 graph_points.py");
+
+                // ============================================================
+                // == Calculus of truncated local error (LTE)
+                // ============================================================
+                double lte1_arr[MAX_SIZE+1], lte2_arr[MAX_SIZE+1], lte3_arr[MAX_SIZE+1];
+                lte1_arr[0] = lte2_arr[0] = lte3_arr[0] = 0.0;
+
+                for (int i = 1; i <= n; i++) {
+                    double lte1, lte2, lte3;
+                    local_trunc_error_rk4_3(X[i-1], Y1[i-1], Y2[i-1], Y3[i-1], h, f13, f23, f33, &lte1, &lte2, &lte3);
+                    lte1_arr[i] = lte1;
+                    lte2_arr[i] = lte2;
+                    lte3_arr[i] = lte3;
+                }
+
+                // ============================================================
+                // == Prints of results
+                // ============================================================
+
+                // Y1
+                printf("\n%-10s %-15s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y1", "RK4 Y1", "Exact Error", "Local Trunc. Err");
+                printf("--------------------------------------------------------------------------\n");
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y1(X[i]) - Y1[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.2e %-15.2e\n",
+                           i, X[i], y1(X[i]), Y1[i], exact_error, lte1_arr[i]);
+                }
+
+                // Y2
+                printf("\n%-10s %-15s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y2", "RK4 Y2", "Exact Error", "Local Trunc. Err");
+                printf("--------------------------------------------------------------------------\n");
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y2(X[i]) - Y2[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.2e %-15.2e\n",
+                           i, X[i], y2(X[i]), Y2[i], exact_error, lte2_arr[i]);
+                }
+
+                // Y3
+                printf("\n%-10s %-15s %-15s %-15s %-15s %-15s\n", 
+                       "i", "X[i]", "Exact Y3", "RK4 Y3", "Exact Error", "Local Trunc. Err");
+                printf("--------------------------------------------------------------------------\n");
+                for (int i = 0; i <= n; i++) {
+                    double exact_error = fabs(y3(X[i]) - Y3[i]);
+                    printf("%-10d %-15lf %-15lf %-15lf %-15.2e %-15.2e\n",
+                           i, X[i], y3(X[i]), Y3[i], exact_error, lte3_arr[i]);
+                }
+
+                // ============================================================
+                // == Save results and plot
+                // ============================================================
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+                save_in_txt("results_Y3.txt", X, Y3, n);
+
                 if (system("test -f graph_points_edo3.py") == 0) {
                     system("python3 graph_points_edo3.py");
                 } else {
-                    printf("⚠️  Warning: 'graph_points_edo3.py' not found. Skipping graph generation.\n");
+                    printf("Warning: 'graph_points_edo3.py' not found. Skipping graph generation.\n");
                 }
             }
             break; 
@@ -986,134 +1432,428 @@ void convergence_factor_euler_3(int n1, double h1, double X0, double Xf,
     rename("results_Q3.txt", filename3);
 
     // Generar gráfico si existe script Python
-    if (system("test -f graph_convergence_edo3.py") == 0) {
-        system("python3 graph_convergence_edo3.py");
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
     } else {
-        printf("⚠️  Warning: 'graph_convergence_edo3.py' not found. Skipping graph generation.\n");
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
     }
 }
 
-
-/* void convergence_factor_heun(int n1, double h1, double X0, double Xf, double Y0) {
+void convergence_factor_heun_2(int n1, double h1, double X0, double Xf,
+                               double Y10, double Y20,
+                               double (*f1)(double, double, double),
+                               double (*f2)(double, double, double),
+                               const char *filename1,
+                               const char *filename2) {
     double h2 = h1 / 2.0;
     double h3 = h1 / 4.0;
 
-    double Yh[MAX_SIZE + 1], Yh2[MAX_SIZE*2 + 1], Yh4[MAX_SIZE*4 + 1];
-    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
-    double Q[MAX_SIZE + 1];
+    // Array values
+    double Y1h[MAX_SIZE + 1], Y2h[MAX_SIZE + 1];
+    double Y1h2[MAX_SIZE * 2 + 1], Y2h2[MAX_SIZE * 2 + 1];
+    double Y1h4[MAX_SIZE * 4 + 1], Y2h4[MAX_SIZE * 4 + 1];
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE * 2 + 1], Xh4[MAX_SIZE * 4 + 1];
+    double Q1[MAX_SIZE + 1], Q2[MAX_SIZE + 1];
 
+    // Initialization
     Xh[0] = Xh2[0] = Xh4[0] = X0;
-    Yh[0] = Yh2[0] = Yh4[0] = Y0;
+    Y1h[0] = Y1h2[0] = Y1h4[0] = Y10;
+    Y2h[0] = Y2h2[0] = Y2h4[0] = Y20;
 
-    // Heun con paso h
+    // ---------- Heun with step h ----------
     for (int i = 0; i < n1; i++) {
-        double predictor = Yh[i] + h1 * f(Xh[i], Yh[i]);
-        Yh[i+1] = Yh[i] + (h1/2.0)*(f(Xh[i], Yh[i]) + f(Xh[i]+h1, predictor));
+        double k1_y1 = f1(Xh[i], Y1h[i], Y2h[i]);
+        double k1_y2 = f2(Xh[i], Y1h[i], Y2h[i]);
+
+        double predictor_y1 = Y1h[i] + h1 * k1_y1;
+        double predictor_y2 = Y2h[i] + h1 * k1_y2;
+
+        double k2_y1 = f1(Xh[i] + h1, predictor_y1, predictor_y2);
+        double k2_y2 = f2(Xh[i] + h1, predictor_y1, predictor_y2);
+
+        Y1h[i+1] = Y1h[i] + (h1 / 2.0) * (k1_y1 + k2_y1);
+        Y2h[i+1] = Y2h[i] + (h1 / 2.0) * (k1_y2 + k2_y2);
         Xh[i+1] = Xh[i] + h1;
     }
 
-    // Heun con paso h/2
-    for (int i = 0; i < 2*n1; i++) {
-        double predictor = Yh2[i] + h2 * f(Xh2[i], Yh2[i]);
-        Yh2[i+1] = Yh2[i] + (h2/2.0)*(f(Xh2[i], Yh2[i]) + f(Xh2[i]+h2, predictor));
+    // ---------- Heun with step h/2 ----------
+    for (int i = 0; i < 2 * n1; i++) {
+        double k1_y1 = f1(Xh2[i], Y1h2[i], Y2h2[i]);
+        double k1_y2 = f2(Xh2[i], Y1h2[i], Y2h2[i]);
+
+        double predictor_y1 = Y1h2[i] + h2 * k1_y1;
+        double predictor_y2 = Y2h2[i] + h2 * k1_y2;
+
+        double k2_y1 = f1(Xh2[i] + h2, predictor_y1, predictor_y2);
+        double k2_y2 = f2(Xh2[i] + h2, predictor_y1, predictor_y2);
+
+        Y1h2[i+1] = Y1h2[i] + (h2 / 2.0) * (k1_y1 + k2_y1);
+        Y2h2[i+1] = Y2h2[i] + (h2 / 2.0) * (k1_y2 + k2_y2);
         Xh2[i+1] = Xh2[i] + h2;
     }
 
-    // Heun con paso h/4
-    for (int i = 0; i < 4*n1; i++) {
-        double predictor = Yh4[i] + h3 * f(Xh4[i], Yh4[i]);
-        Yh4[i+1] = Yh4[i] + (h3/2.0)*(f(Xh4[i], Yh4[i]) + f(Xh4[i]+h3, predictor));
+    // ---------- Heun with step h/4 ----------
+    for (int i = 0; i < 4 * n1; i++) {
+        double k1_y1 = f1(Xh4[i], Y1h4[i], Y2h4[i]);
+        double k1_y2 = f2(Xh4[i], Y1h4[i], Y2h4[i]);
+
+        double predictor_y1 = Y1h4[i] + h3 * k1_y1;
+        double predictor_y2 = Y2h4[i] + h3 * k1_y2;
+
+        double k2_y1 = f1(Xh4[i] + h3, predictor_y1, predictor_y2);
+        double k2_y2 = f2(Xh4[i] + h3, predictor_y1, predictor_y2);
+
+        Y1h4[i+1] = Y1h4[i] + (h3 / 2.0) * (k1_y1 + k2_y1);
+        Y2h4[i+1] = Y2h4[i] + (h3 / 2.0) * (k1_y2 + k2_y2);
         Xh4[i+1] = Xh4[i] + h3;
     }
 
-    printf("\n%-10s %-15s %-15s\n", "i", "x_i", "Q_i");
-    printf("------------------------------------------\n");
-    Q[0] = 0.0;
+    // ---------- Calculate convergence factors Q ----------
+    printf("\n%-10s %-15s %-15s %-15s\n", "i", "x_i", "Q1_i", "Q2_i");
+    printf("----------------------------------------------------------\n");
+
+    for (int i = 1; i <= n1; i++) {
+        int idx2 = 2 * i;
+        int idx4 = 4 * i;
+
+        double num1 = fabs(Y1h[i] - Y1h2[idx2]);
+        double den1 = fabs(Y1h2[idx2] - Y1h4[idx4]);
+        double num2 = fabs(Y2h[i] - Y2h2[idx2]);
+        double den2 = fabs(Y2h2[idx2] - Y2h4[idx4]);
+
+        Q1[i] = (den1 > 1e-12) ? log(num1 / den1) / log(2.0) : 0.0;
+        Q2[i] = (den2 > 1e-12) ? log(num2 / den2) / log(2.0) : 0.0;
+
+        printf("%-10d %-15lf %-15lf %-15lf\n", i, Xh[i], Q1[i], Q2[i]);
+    }
+
+    // ---------- Save results ----------
+    save_in_txt("results_Q1.txt", Xh, Q1, n1);
+    save_in_txt("results_Q2.txt", Xh, Q2, n1);
+    rename("results_Q1.txt", filename1);
+    rename("results_Q2.txt", filename2);
+
+    // ---------- Generate graph ----------
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
+    } else {
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
+    }
+}
+
+void convergence_factor_heun_3(int n1, double h1, double X0, double Xf,
+                               double Y10, double Y20, double Y30,
+                               double (*f1)(double, double, double, double),
+                               double (*f2)(double, double, double, double),
+                               double (*f3)(double, double, double, double),
+                               const char *filename1,
+                               const char *filename2,
+                               const char *filename3) {
+    double h2 = h1 / 2.0;
+    double h3 = h1 / 4.0;
+
+    double Y1h[MAX_SIZE + 1], Y2h[MAX_SIZE + 1], Y3h[MAX_SIZE + 1];
+    double Y1h2[MAX_SIZE * 2 + 1], Y2h2[MAX_SIZE * 2 + 1], Y3h2[MAX_SIZE * 2 + 1];
+    double Y1h4[MAX_SIZE * 4 + 1], Y2h4[MAX_SIZE * 4 + 1], Y3h4[MAX_SIZE * 4 + 1];
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE * 2 + 1], Xh4[MAX_SIZE * 4 + 1];
+    double Q1[MAX_SIZE + 1], Q2[MAX_SIZE + 1], Q3[MAX_SIZE + 1];
+
+    Xh[0] = Xh2[0] = Xh4[0] = X0;
+    Y1h[0] = Y1h2[0] = Y1h4[0] = Y10;
+    Y2h[0] = Y2h2[0] = Y2h4[0] = Y20;
+    Y3h[0] = Y3h2[0] = Y3h4[0] = Y30;
+
+    // --- Heun with step h ---
+    for (int i = 0; i < n1; i++) {
+        double k11 = f1(Xh[i], Y1h[i], Y2h[i], Y3h[i]);
+        double k12 = f2(Xh[i], Y1h[i], Y2h[i], Y3h[i]);
+        double k13 = f3(Xh[i], Y1h[i], Y2h[i], Y3h[i]);
+
+        double y1_pred = Y1h[i] + h1 * k11;
+        double y2_pred = Y2h[i] + h1 * k12;
+        double y3_pred = Y3h[i] + h1 * k13;
+
+        double k21 = f1(Xh[i] + h1, y1_pred, y2_pred, y3_pred);
+        double k22 = f2(Xh[i] + h1, y1_pred, y2_pred, y3_pred);
+        double k23 = f3(Xh[i] + h1, y1_pred, y2_pred, y3_pred);
+
+        Y1h[i+1] = Y1h[i] + (h1 / 2.0) * (k11 + k21);
+        Y2h[i+1] = Y2h[i] + (h1 / 2.0) * (k12 + k22);
+        Y3h[i+1] = Y3h[i] + (h1 / 2.0) * (k13 + k23);
+        Xh[i+1] = Xh[i] + h1;
+    }
+
+    // --- Heun with step h/2 ---
+    for (int i = 0; i < 2 * n1; i++) {
+        double k11 = f1(Xh2[i], Y1h2[i], Y2h2[i], Y3h2[i]);
+        double k12 = f2(Xh2[i], Y1h2[i], Y2h2[i], Y3h2[i]);
+        double k13 = f3(Xh2[i], Y1h2[i], Y2h2[i], Y3h2[i]);
+
+        double y1_pred = Y1h2[i] + h2 * k11;
+        double y2_pred = Y2h2[i] + h2 * k12;
+        double y3_pred = Y3h2[i] + h2 * k13;
+
+        double k21 = f1(Xh2[i] + h2, y1_pred, y2_pred, y3_pred);
+        double k22 = f2(Xh2[i] + h2, y1_pred, y2_pred, y3_pred);
+        double k23 = f3(Xh2[i] + h2, y1_pred, y2_pred, y3_pred);
+
+        Y1h2[i+1] = Y1h2[i] + (h2 / 2.0) * (k11 + k21);
+        Y2h2[i+1] = Y2h2[i] + (h2 / 2.0) * (k12 + k22);
+        Y3h2[i+1] = Y3h2[i] + (h2 / 2.0) * (k13 + k23);
+        Xh2[i+1] = Xh2[i] + h2;
+    }
+
+    // --- Heun with step h/4 ---
+    for (int i = 0; i < 4 * n1; i++) {
+        double k11 = f1(Xh4[i], Y1h4[i], Y2h4[i], Y3h4[i]);
+        double k12 = f2(Xh4[i], Y1h4[i], Y2h4[i], Y3h4[i]);
+        double k13 = f3(Xh4[i], Y1h4[i], Y2h4[i], Y3h4[i]);
+
+        double y1_pred = Y1h4[i] + h3 * k11;
+        double y2_pred = Y2h4[i] + h3 * k12;
+        double y3_pred = Y3h4[i] + h3 * k13;
+
+        double k21 = f1(Xh4[i] + h3, y1_pred, y2_pred, y3_pred);
+        double k22 = f2(Xh4[i] + h3, y1_pred, y2_pred, y3_pred);
+        double k23 = f3(Xh4[i] + h3, y1_pred, y2_pred, y3_pred);
+
+        Y1h4[i+1] = Y1h4[i] + (h3 / 2.0) * (k11 + k21);
+        Y2h4[i+1] = Y2h4[i] + (h3 / 2.0) * (k12 + k22);
+        Y3h4[i+1] = Y3h4[i] + (h3 / 2.0) * (k13 + k23);
+        Xh4[i+1] = Xh4[i] + h3;
+    }
+
+    printf("\n%-10s %-15s %-15s %-15s %-15s\n", "i", "x_i", "Q1_i", "Q2_i", "Q3_i");
+    printf("--------------------------------------------------------------------------\n");
+
+    for (int i = 1; i <= n1; i++) {
+        int idx2 = 2 * i;
+        int idx4 = 4 * i;
+
+        double num1 = fabs(Y1h[i] - Y1h2[idx2]);
+        double den1 = fabs(Y1h2[idx2] - Y1h4[idx4]);
+        double num2 = fabs(Y2h[i] - Y2h2[idx2]);
+        double den2 = fabs(Y2h2[idx2] - Y2h4[idx4]);
+        double num3 = fabs(Y3h[i] - Y3h2[idx2]);
+        double den3 = fabs(Y3h2[idx2] - Y3h4[idx4]);
+
+        Q1[i] = (den1 > 1e-12) ? log(num1 / den1) / log(2.0) : 0.0;
+        Q2[i] = (den2 > 1e-12) ? log(num2 / den2) / log(2.0) : 0.0;
+        Q3[i] = (den3 > 1e-12) ? log(num3 / den3) / log(2.0) : 0.0;
+
+        printf("%-10d %-15lf %-15lf %-15lf %-15lf\n", i, Xh[i], Q1[i], Q2[i], Q3[i]);
+    }
+
+    save_in_txt("results_Q1.txt", Xh, Q1, n1);
+    save_in_txt("results_Q2.txt", Xh, Q2, n1);
+    save_in_txt("results_Q3.txt", Xh, Q3, n1);
+    rename("results_Q1.txt", filename1);
+    rename("results_Q2.txt", filename2);
+    rename("results_Q3.txt", filename3);
+
+    if (system("test -f graph_convergence.py") == 0)
+        system("python3 graph_convergence.py");
+    else
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
+}
+
+
+void convergence_factor_midpoint_2(int n1, double h1, double X0, double Xf,
+                                   double Y10, double Y20,
+                                   double (*f1)(double, double, double),
+                                   double (*f2)(double, double, double),
+                                   const char *fileQ1,
+                                   const char *fileQ2) {
+
+    double h2 = h1 / 2.0;
+    double h3 = h1 / 4.0;
+
+    double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
+    double Y1h[MAX_SIZE + 1], Y1h2[MAX_SIZE*2 + 1], Y1h4[MAX_SIZE*4 + 1];
+    double Y2h[MAX_SIZE + 1], Y2h2[MAX_SIZE*2 + 1], Y2h4[MAX_SIZE*4 + 1];
+    double Q1[MAX_SIZE + 1], Q2[MAX_SIZE + 1];
+
+    // Inicialización
+    Xh[0] = Xh2[0] = Xh4[0] = X0;
+    Y1h[0] = Y1h2[0] = Y1h4[0] = Y10;
+    Y2h[0] = Y2h2[0] = Y2h4[0] = Y20;
+
+    // ---------- Midpoint paso h ----------
+    for (int i = 0; i < n1; i++) {
+        double k11 = f1(Xh[i], Y1h[i], Y2h[i]);
+        double k12 = f2(Xh[i], Y1h[i], Y2h[i]);
+        double k21 = f1(Xh[i] + h1/2.0, Y1h[i] + (h1/2.0)*k11, Y2h[i] + (h1/2.0)*k12);
+        double k22 = f2(Xh[i] + h1/2.0, Y1h[i] + (h1/2.0)*k11, Y2h[i] + (h1/2.0)*k12);
+        Y1h[i+1] = Y1h[i] + h1 * k21;
+        Y2h[i+1] = Y2h[i] + h1 * k22;
+        Xh[i+1] = Xh[i] + h1;
+    }
+
+    // ---------- Midpoint paso h/2 ----------
+    for (int i = 0; i < 2*n1; i++) {
+        double k11 = f1(Xh2[i], Y1h2[i], Y2h2[i]);
+        double k12 = f2(Xh2[i], Y1h2[i], Y2h2[i]);
+        double k21 = f1(Xh2[i] + h2/2.0, Y1h2[i] + (h2/2.0)*k11, Y2h2[i] + (h2/2.0)*k12);
+        double k22 = f2(Xh2[i] + h2/2.0, Y1h2[i] + (h2/2.0)*k11, Y2h2[i] + (h2/2.0)*k12);
+        Y1h2[i+1] = Y1h2[i] + h2 * k21;
+        Y2h2[i+1] = Y2h2[i] + h2 * k22;
+        Xh2[i+1] = Xh2[i] + h2;
+    }
+
+    // ---------- Midpoint paso h/4 ----------
+    for (int i = 0; i < 4*n1; i++) {
+        double k11 = f1(Xh4[i], Y1h4[i], Y2h4[i]);
+        double k12 = f2(Xh4[i], Y1h4[i], Y2h4[i]);
+        double k21 = f1(Xh4[i] + h3/2.0, Y1h4[i] + (h3/2.0)*k11, Y2h4[i] + (h3/2.0)*k12);
+        double k22 = f2(Xh4[i] + h3/2.0, Y1h4[i] + (h3/2.0)*k11, Y2h4[i] + (h3/2.0)*k12);
+        Y1h4[i+1] = Y1h4[i] + h3 * k21;
+        Y2h4[i+1] = Y2h4[i] + h3 * k22;
+        Xh4[i+1] = Xh4[i] + h3;
+    }
+
+    // ---------- Calcular Q1 y Q2 ----------
+    printf("\n%-10s %-15s %-15s %-15s\n", "i", "x_i", "Q1_i", "Q2_i");
+    printf("------------------------------------------------------------\n");
+
+    Q1[0] = Q2[0] = 0.0;
 
     for (int i = 1; i <= n1; i++) {
         int idx2 = 2*i;
         int idx4 = 4*i;
-        double num = fabs(Yh[i] - Yh2[idx2]);
-        double den = fabs(Yh2[idx2] - Yh4[idx4]);
 
-        if (den > 1e-12) {
-            Q[i] = log(num / den) / log(2.0);
-            printf("%-10d %-15lf %-15lf\n", i, Xh[i], Q[i]);
-        } else {
-            Q[i] = 0.0;
-            printf("%-10d %-15lf %-15s\n", i, Xh[i], "N/A");
-        }
+        double num1 = fabs(Y1h[i] - Y1h2[idx2]);
+        double den1 = fabs(Y1h2[idx2] - Y1h4[idx4]);
+        double num2 = fabs(Y2h[i] - Y2h2[idx2]);
+        double den2 = fabs(Y2h2[idx2] - Y2h4[idx4]);
+
+        Q1[i] = (den1 > 1e-12) ? log(num1 / den1) / log(2.0) : 0.0;
+        Q2[i] = (den2 > 1e-12) ? log(num2 / den2) / log(2.0) : 0.0;
+
+        printf("%-10d %-15lf %-15lf %-15lf\n", i, Xh[i], Q1[i], Q2[i]);
     }
 
-    save_in_txt(Xh, Q, n1);
-    rename("results.txt", "convergence_heun.txt");
+    save_in_txt("results_Q1.txt", Xh, Q1, n1);
+    save_in_txt("results_Q2.txt", Xh, Q2, n1);
+    rename("results_Q1.txt", fileQ1);
+    rename("results_Q2.txt", fileQ2);
 
     if (system("test -f graph_convergence.py") == 0) {
         system("python3 graph_convergence.py");
+    } else {
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
     }
-} */
+}
 
-/* void convergence_factor_midpoint(int n1, double h1, double X0, double Xf, double Y0) {
+void convergence_factor_midpoint_3(int n1, double h1, double X0, double Xf,
+                                   double Y10, double Y20, double Y30,
+                                   double (*f1)(double, double, double, double),
+                                   double (*f2)(double, double, double, double),
+                                   double (*f3)(double, double, double, double),
+                                   const char *fileQ1,
+                                   const char *fileQ2,
+                                   const char *fileQ3) {
+
     double h2 = h1 / 2.0;
     double h3 = h1 / 4.0;
 
-    double Yh[MAX_SIZE + 1], Yh2[MAX_SIZE*2 + 1], Yh4[MAX_SIZE*4 + 1];
     double Xh[MAX_SIZE + 1], Xh2[MAX_SIZE*2 + 1], Xh4[MAX_SIZE*4 + 1];
-    double Q[MAX_SIZE + 1];
+    double Y1h[MAX_SIZE + 1], Y1h2[MAX_SIZE*2 + 1], Y1h4[MAX_SIZE*4 + 1];
+    double Y2h[MAX_SIZE + 1], Y2h2[MAX_SIZE*2 + 1], Y2h4[MAX_SIZE*4 + 1];
+    double Y3h[MAX_SIZE + 1], Y3h2[MAX_SIZE*2 + 1], Y3h4[MAX_SIZE*4 + 1];
+    double Q1[MAX_SIZE + 1], Q2[MAX_SIZE + 1], Q3[MAX_SIZE + 1];
 
+    // Inicialización
     Xh[0] = Xh2[0] = Xh4[0] = X0;
-    Yh[0] = Yh2[0] = Yh4[0] = Y0;
+    Y1h[0] = Y1h2[0] = Y1h4[0] = Y10;
+    Y2h[0] = Y2h2[0] = Y2h4[0] = Y20;
+    Y3h[0] = Y3h2[0] = Y3h4[0] = Y30;
 
-    // Midpoint paso h
+    // ---------- Midpoint paso h ----------
     for (int i = 0; i < n1; i++) {
-        double k1 = f(Xh[i], Yh[i]);
-        double k2 = f(Xh[i] + h1/2.0, Yh[i] + (h1/2.0)*k1);
-        Yh[i+1] = Yh[i] + h1*k2;
+        double k11 = f1(Xh[i], Y1h[i], Y2h[i], Y3h[i]);
+        double k12 = f2(Xh[i], Y1h[i], Y2h[i], Y3h[i]);
+        double k13 = f3(Xh[i], Y1h[i], Y2h[i], Y3h[i]);
+
+        double k21 = f1(Xh[i] + h1/2.0, Y1h[i] + (h1/2.0)*k11, Y2h[i] + (h1/2.0)*k12, Y3h[i] + (h1/2.0)*k13);
+        double k22 = f2(Xh[i] + h1/2.0, Y1h[i] + (h1/2.0)*k11, Y2h[i] + (h1/2.0)*k12, Y3h[i] + (h1/2.0)*k13);
+        double k23 = f3(Xh[i] + h1/2.0, Y1h[i] + (h1/2.0)*k11, Y2h[i] + (h1/2.0)*k12, Y3h[i] + (h1/2.0)*k13);
+
+        Y1h[i+1] = Y1h[i] + h1 * k21;
+        Y2h[i+1] = Y2h[i] + h1 * k22;
+        Y3h[i+1] = Y3h[i] + h1 * k23;
         Xh[i+1] = Xh[i] + h1;
     }
 
-    // Midpoint paso h/2
+    // ---------- Midpoint paso h/2 ----------
     for (int i = 0; i < 2*n1; i++) {
-        double k1 = f(Xh2[i], Yh2[i]);
-        double k2 = f(Xh2[i] + h2/2.0, Yh2[i] + (h2/2.0)*k1);
-        Yh2[i+1] = Yh2[i] + h2*k2;
+        double k11 = f1(Xh2[i], Y1h2[i], Y2h2[i], Y3h2[i]);
+        double k12 = f2(Xh2[i], Y1h2[i], Y2h2[i], Y3h2[i]);
+        double k13 = f3(Xh2[i], Y1h2[i], Y2h2[i], Y3h2[i]);
+
+        double k21 = f1(Xh2[i] + h2/2.0, Y1h2[i] + (h2/2.0)*k11, Y2h2[i] + (h2/2.0)*k12, Y3h2[i] + (h2/2.0)*k13);
+        double k22 = f2(Xh2[i] + h2/2.0, Y1h2[i] + (h2/2.0)*k11, Y2h2[i] + (h2/2.0)*k12, Y3h2[i] + (h2/2.0)*k13);
+        double k23 = f3(Xh2[i] + h2/2.0, Y1h2[i] + (h2/2.0)*k11, Y2h2[i] + (h2/2.0)*k12, Y3h2[i] + (h2/2.0)*k13);
+
+        Y1h2[i+1] = Y1h2[i] + h2 * k21;
+        Y2h2[i+1] = Y2h2[i] + h2 * k22;
+        Y3h2[i+1] = Y3h2[i] + h2 * k23;
         Xh2[i+1] = Xh2[i] + h2;
     }
 
-    // Midpoint paso h/4
+    // ---------- Midpoint paso h/4 ----------
     for (int i = 0; i < 4*n1; i++) {
-        double k1 = f(Xh4[i], Yh4[i]);
-        double k2 = f(Xh4[i] + h3/2.0, Yh4[i] + (h3/2.0)*k1);
-        Yh4[i+1] = Yh4[i] + h3*k2;
+        double k11 = f1(Xh4[i], Y1h4[i], Y2h4[i], Y3h4[i]);
+        double k12 = f2(Xh4[i], Y1h4[i], Y2h4[i], Y3h4[i]);
+        double k13 = f3(Xh4[i], Y1h4[i], Y2h4[i], Y3h4[i]);
+
+        double k21 = f1(Xh4[i] + h3/2.0, Y1h4[i] + (h3/2.0)*k11, Y2h4[i] + (h3/2.0)*k12, Y3h4[i] + (h3/2.0)*k13);
+        double k22 = f2(Xh4[i] + h3/2.0, Y1h4[i] + (h3/2.0)*k11, Y2h4[i] + (h3/2.0)*k12, Y3h4[i] + (h3/2.0)*k13);
+        double k23 = f3(Xh4[i] + h3/2.0, Y1h4[i] + (h3/2.0)*k11, Y2h4[i] + (h3/2.0)*k12, Y3h4[i] + (h3/2.0)*k13);
+
+        Y1h4[i+1] = Y1h4[i] + h3 * k21;
+        Y2h4[i+1] = Y2h4[i] + h3 * k22;
+        Y3h4[i+1] = Y3h4[i] + h3 * k23;
         Xh4[i+1] = Xh4[i] + h3;
     }
 
-    printf("\n%-10s %-15s %-15s\n", "i", "x_i", "Q_i");
-    printf("------------------------------------------\n");
-    Q[0] = 0.0;
+    // ---------- Calcular Q1, Q2, Q3 ----------
+    printf("\n%-10s %-15s %-15s %-15s %-15s\n", "i", "x_i", "Q1_i", "Q2_i", "Q3_i");
+    printf("--------------------------------------------------------------------------\n");
+
+    Q1[0] = Q2[0] = Q3[0] = 0.0;
 
     for (int i = 1; i <= n1; i++) {
         int idx2 = 2*i;
         int idx4 = 4*i;
-        double num = fabs(Yh[i] - Yh2[idx2]);
-        double den = fabs(Yh2[idx2] - Yh4[idx4]);
 
-        if (den > 1e-12) {
-            Q[i] = log(num / den) / log(2.0);
-            printf("%-10d %-15lf %-15lf\n", i, Xh[i], Q[i]);
-        } else {
-            Q[i] = 0.0;
-            printf("%-10d %-15lf %-15s\n", i, Xh[i], "N/A");
-        }
+        double num1 = fabs(Y1h[i] - Y1h2[idx2]);
+        double den1 = fabs(Y1h2[idx2] - Y1h4[idx4]);
+        double num2 = fabs(Y2h[i] - Y2h2[idx2]);
+        double den2 = fabs(Y2h2[idx2] - Y2h4[idx4]);
+        double num3 = fabs(Y3h[i] - Y3h2[idx2]);
+        double den3 = fabs(Y3h2[idx2] - Y3h4[idx4]);
+
+        Q1[i] = (den1 > 1e-12) ? log(num1 / den1) / log(2.0) : 0.0;
+        Q2[i] = (den2 > 1e-12) ? log(num2 / den2) / log(2.0) : 0.0;
+        Q3[i] = (den3 > 1e-12) ? log(num3 / den3) / log(2.0) : 0.0;
+
+        printf("%-10d %-15lf %-15lf %-15lf %-15lf\n", i, Xh[i], Q1[i], Q2[i], Q3[i]);
     }
 
-    save_in_txt(Xh, Q, n1);
-    rename("results.txt", "convergence_midpoint.txt");
+    save_in_txt("results_Q1.txt", Xh, Q1, n1);
+    save_in_txt("results_Q2.txt", Xh, Q2, n1);
+    save_in_txt("results_Q3.txt", Xh, Q3, n1);
+    rename("results_Q1.txt", fileQ1);
+    rename("results_Q2.txt", fileQ2);
+    rename("results_Q3.txt", fileQ3);
 
     if (system("test -f graph_convergence.py") == 0) {
         system("python3 graph_convergence.py");
+    } else {
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
     }
-} */
+}
+
 
 void convergence_factor_rk4_2(int n1, double h1, double X0, double Y10, double Y20,
                               double (*f1)(double,double,double),
@@ -1168,8 +1908,16 @@ void convergence_factor_rk4_2(int n1, double h1, double X0, double Y10, double Y
         Q2[i] = (den2>1e-12)? log(num2/den2)/log(2.0) : 0.0;
 
         char s1[64], s2[64];
-        snprintf(s1, sizeof(s1), (Q1[i]!=0.0) ? "%15.6f" : "N/A", Q1[i]);
-        snprintf(s2, sizeof(s2), (Q2[i]!=0.0) ? "%15.6f" : "N/A", Q2[i]);
+        if (Q1[i] != 0.0) {
+            snprintf(s1, sizeof(s1), "%15.6f", Q1[i]);
+        } else {
+            snprintf(s1, sizeof(s1), "N/A");
+        }
+        if (Q2[i] != 0.0) {
+            snprintf(s2, sizeof(s2), "%15.6f", Q2[i]);
+        } else {
+            snprintf(s2, sizeof(s2), "N/A");
+        }
 
         printf("%-10d %-15lf %-15s %-15s\n", i, xi, s1, s2);
     }
@@ -1247,9 +1995,21 @@ void convergence_factor_rk4_3(int n1, double h1, double X0,
         Q3[i] = (den3>1e-12)? log(num3/den3)/log(2.0) : 0.0;
 
         char s1[64], s2[64], s3[64];
-        snprintf(s1, sizeof(s1), (Q1[i]!=0.0) ? "%15.6f" : "N/A", Q1[i]);
-        snprintf(s2, sizeof(s2), (Q2[i]!=0.0) ? "%15.6f" : "N/A", Q2[i]);
-        snprintf(s3, sizeof(s3), (Q3[i]!=0.0) ? "%15.6f" : "N/A", Q3[i]);
+        if (Q1[i] != 0.0) {
+            snprintf(s1, sizeof(s1), "%15.6f", Q1[i]);
+        } else {
+            snprintf(s1, sizeof(s1), "N/A");
+        }
+        if (Q2[i] != 0.0) {
+            snprintf(s2, sizeof(s2), "%15.6f", Q2[i]);
+        } else {
+            snprintf(s2, sizeof(s2), "N/A");
+        }
+        if (Q3[i] != 0.0) {
+            snprintf(s3, sizeof(s3), "%15.6f", Q3[i]);
+        } else {
+            snprintf(s3, sizeof(s3), "N/A");
+        }
 
         printf("%-10d %-15lf %-15s %-15s %-15s\n", i, xi, s1, s2, s3);
     }
@@ -1260,10 +2020,10 @@ void convergence_factor_rk4_3(int n1, double h1, double X0,
     save_in_txt(filename3, Xh, Q3, n1);
 
     // Generar gráfico si existe script Python
-    if (system("test -f graph_convergence_edo3.py") == 0) {
-        system("python3 graph_convergence_edo3.py");
+    if (system("test -f graph_convergence.py") == 0) {
+        system("python3 graph_convergence.py");
     } else {
-        printf("⚠️  Warning: 'graph_convergence_edo3.py' not found. Skipping graph generation.\n");
+        printf("⚠️  Warning: 'graph_convergence.py' not found. Skipping graph generation.\n");
     }
 }
 
