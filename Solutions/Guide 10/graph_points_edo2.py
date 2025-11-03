@@ -16,8 +16,8 @@ y_euler_2 = data2[:, 1]
 
 # --- Compute the exact analytical solution y(x) = (2/3) * x^(3/2) ---
 x_exact = np.linspace(min(x_euler_1), max(x_euler_1), 200)  # 200 points for smooth curve
-y_exact1 = x_exact**2 + np.sin(x_exact)
-y_exact2 = np.cos(x_exact) - x_exact
+y_exact1 = 2*x_exact*np.sin(x_exact)
+y_exact2 = 2*(np.sin(x_exact) + (x_exact*np.cos(x_exact)))
 
 # --- Plot both curves ---
 plt.figure(figsize=(8, 6))
@@ -38,8 +38,11 @@ plt.legend()
 plt.grid(True)
 
 # Axis limits slightly extended
-plt.xlim(min(x_euler_1) - 0.5, max(x_euler_1) + 0.5)
-plt.ylim(min(y_euler_1) - 0.5, max(y_exact1) + 0.5)
+# plt.xlim(min(x_euler_1) - 0.5, max(x_euler_1) + 0.5)
+# plt.ylim(min(y_euler_1) - 0.5, max(y_exact1) + 0.5)
+
+plt.margins(x=0.05, y=0.05)  # Márgenes del 5% en X y 10% en Y
+
 """ 
 If you want to graph using exact solution data1 limits, uncomment below:
 plt.xlim(min(x_exact)-0.1, max(x_exact)+0.1)

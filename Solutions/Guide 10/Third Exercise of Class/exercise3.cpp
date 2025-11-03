@@ -535,9 +535,9 @@ int main(int argc, char const *argv[]) {
                 }
             
                 // Save x[i] and Y[i in results.txt]
-                save_in_txt("results_Y1", X, Y1, n);
-                save_in_txt("results_Y2", X, Y2, n);
-                save_in_txt("results_Y3", X, Y3, n);
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+                save_in_txt("results_Y3.txt", X, Y3, n);
                 // Finally, we print the results.txt file in a graph using Python to visualize the results
                 // system("python3 graph_points.py");
                 if (system("test -f graph_points_edo3.py") == 0) {
@@ -1132,7 +1132,8 @@ double f23(double X, double Y1, double Y2, double Y3) {
 }
 
 double f33(double X, double Y1, double Y2, double Y3) {
-    return 4.0 * Y3 - 24.0 * Y1 + 24.0 * X * X - 16.0;
+    // return 4.0 * Y3 - 24.0 * Y1 + 24.0 * X * X - 16.0;
+    return -2.0*Y3;
 }
 
 double y1(double x) {

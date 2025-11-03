@@ -366,6 +366,8 @@ int main(int argc, char const *argv[]) {
     // Error to calculate
     double exact_error, local_trunc_error;
 
+    double exact_error1[MAX_SIZE + 1];
+
     printf("Insert X0 and Xf:\n");
     scanf("%lf %lf", &X0, &Xf);
     
@@ -385,8 +387,9 @@ int main(int argc, char const *argv[]) {
         scanf("%lf", &h);
         n = (int)((Xf - X0) / h);
         if (n > MAX_SIZE) {
-            printf("Error: number of subintervals exceeds maximum size (%d).\n", MAX_SIZE);
-            return 1;
+            n = MAX_SIZE;
+            // printf("Error: number of subintervals exceeds maximum size (%d).\n", MAX_SIZE);
+            // return 1;
         }
     }
 
@@ -501,6 +504,7 @@ int main(int argc, char const *argv[]) {
                 // If local_trunc_error > 0 => The value calculated by Euler is greater than the exact one. Euler overestimates.
                 for(int i = 0; i <= n; i++) {
                     exact_error = fabs(y1(X[i]) - Y1[i]);
+                    exact_error1[i] = exact_error;
                     local_trunc_error = (h * h / 2.0) * fprima3(X[i], y1(X[i]), y2(X[i]), y3(X[i]), f13); 
                     printf("%-10d %-15lf %-15lf %-15lf %-15lf %-15lf\n", 
                            i, X[i], y1(X[i]), Y1[i], exact_error, local_trunc_error);
@@ -535,15 +539,21 @@ int main(int argc, char const *argv[]) {
                 }
             
                 // Save x[i] and Y[i in results.txt]
-                save_in_txt("results_Y1", X, Y1, n);
-                save_in_txt("results_Y2", X, Y2, n);
-                save_in_txt("results_Y3", X, Y3, n);
+                save_in_txt("results_Y1.txt", X, Y1, n);
+                save_in_txt("results_Y2.txt", X, Y2, n);
+                save_in_txt("results_Y3.txt", X, Y3, n);
+                save_in_txt("error1.txt", X, exact_error1, n);
                 // Finally, we print the results.txt file in a graph using Python to visualize the results
                 // system("python3 graph_points.py");
                 if (system("test -f graph_points_edo3.py") == 0) {
                     system("python3 graph_points_edo3.py");
                 } else {
                     printf("⚠️  Warning: 'graph_points_edo3.py' not found. Skipping graph generation.\n");
+                }
+                if (system("test -f graph_error.py") == 0) {
+                    system("python3 graph_error.py");
+                } else {
+                    printf("⚠️  Warning: 'graph_error.py' not found. Skipping graph generation.\n");
                 }
             }
             break;
@@ -1115,36 +1125,41 @@ int main(int argc, char const *argv[]) {
 
 // Functions for systems of two EDOs
 double f12(double X, double Y1, double Y2) {
-    return 3 * X + Y2;
+    // return 3 * X + Y2;
+    return Y2;
 }
 
 double f22(double X, double Y1, double Y2) {
-    return pow(X, 2) - Y1 - 1;
+    // return pow(X, 2) - Y1 - 1;
+    return (4 * cos(X) - Y1);
 }
 
 // Functions for systems of three EDOs
 double f13(double X, double Y1, double Y2, double Y3) {
-    return X + Y1 + Y2 + Y3;
+    return Y2;
 }
 
 double f23(double X, double Y1, double Y2, double Y3) {
-    return X - Y1 + Y2 + Y3;
+    return Y3;
 }
 
 double f33(double X, double Y1, double Y2, double Y3) {
-    return X + Y2 - Y3 + Y1;
+    // return 4.0 * Y3 - 24.0 * Y1 + 24.0 * X * X - 16.0;
+    return -2.0*Y3;
 }
 
 double y1(double x) {
-    return pow(x, 2) + sin(x);
+    return 0.25 * exp(-2*x) + x;
+    // return (2*x*sin(x));
 }
 
 double y2(double x) {
-    return cos(x) - x;
+    return -0.5 * exp(-2*x) + 1.0;
+    // return (2*(sin(x) + x*cos(x)));
 }
 
 double y3(double x) {
-    return 1.0 / (x * x + 1.0);
+    return exp(-2*x);
 }
 
 /**
