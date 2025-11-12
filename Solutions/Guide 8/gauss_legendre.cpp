@@ -230,7 +230,11 @@ int main(int argc, char const *argv[]) {
             c1 = 1.0;
             x0 = -0.577350269;
             x1 = 0.577350269;
-            integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)));
+            // integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)));
+            integral = ((b_limit-a_limit)/2) * (
+            c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2) + 
+            c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)
+            );
             break;
         case 3:
             // Implement 3-point Gauss-Legendre quadrature
@@ -240,7 +244,12 @@ int main(int argc, char const *argv[]) {
             x0 = -0.774596669;
             x1 = 0.0;
             x2 = 0.774596669;
-            integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)));
+            // integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)));
+            integral = ((b_limit-a_limit)/2) * (
+            c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2) + 
+            c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2) + 
+            c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)
+            );
             break;
         case 4:
             // Implement 4-point Gauss-Legendre quadrature
@@ -252,7 +261,13 @@ int main(int argc, char const *argv[]) {
             x1 = -0.339981044;
             x2 = 0.339981044;
             x3 = 0.861136312;
-            integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)) + (c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)));
+            // integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)) + (c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)));
+            integral = ((b_limit-a_limit)/2) * (
+            c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2) + 
+            c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2) + 
+            c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2) + 
+            c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)
+            );
             break;
         case 5:
             // Implement 5-point Gauss-Legendre quadrature
@@ -266,7 +281,14 @@ int main(int argc, char const *argv[]) {
             x2 = 0.0;
             x3 = 0.538469310;
             x4 = 0.906179846;
-            integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)) + (c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)) + (c4 * f((((b_limit-a_limit)*x4) + (b_limit+a_limit))/2)));
+            // integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)) + (c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)) + (c4 * f((((b_limit-a_limit)*x4) + (b_limit+a_limit))/2)));
+            integral = ((b_limit-a_limit)/2) * (
+            c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2) + 
+            c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2) + 
+            c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2) + 
+            c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2) + 
+            c4 * f((((b_limit-a_limit)*x4) + (b_limit+a_limit))/2)
+            );
             break;
         case 6:
             // Implement 6-point Gauss-Legendre quadrature
@@ -282,7 +304,15 @@ int main(int argc, char const *argv[]) {
             x3 = 0.238619186;
             x4 = 0.661209386;
             x5 = 0.932469514;
-            integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)) + (c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)) + (c4 * f((((b_limit-a_limit)*x4) + (b_limit+a_limit))/2)) + (c5 * f((((b_limit-a_limit)*x5) + (b_limit+a_limit))/2)));
+            // integral = (((b_limit-a_limit)/2) * (c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2)) + (c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2)) + (c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2)) + (c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2)) + (c4 * f((((b_limit-a_limit)*x4) + (b_limit+a_limit))/2)) + (c5 * f((((b_limit-a_limit)*x5) + (b_limit+a_limit))/2)));
+            integral = ((b_limit-a_limit)/2) * (
+            c0 * f((((b_limit-a_limit)*x0) + (b_limit+a_limit))/2) + 
+            c1 * f((((b_limit-a_limit)*x1) + (b_limit+a_limit))/2) + 
+            c2 * f((((b_limit-a_limit)*x2) + (b_limit+a_limit))/2) + 
+            c3 * f((((b_limit-a_limit)*x3) + (b_limit+a_limit))/2) + 
+            c4 * f((((b_limit-a_limit)*x4) + (b_limit+a_limit))/2) + 
+            c5 * f((((b_limit-a_limit)*x5) + (b_limit+a_limit))/2)
+            );
             break;
         default:
             printf("Error: Number of points must be between 2 and 6\n");
