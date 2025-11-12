@@ -326,11 +326,10 @@ int main(int argc, char const *argv[]) {
 
 double f(double x) {
     if(spline_n == 0) {
-        return x * x;
+        return (((2.0*x) / (pow(x, 2) + 1.0)) - (cos(x)));
     }
     return evaluate_spline(spline_X, spline_solution, spline_n, x);
 }
-
 
 int read_data_points(const char* filename, double X[], double Y[], int* n) {
     FILE *fp;
