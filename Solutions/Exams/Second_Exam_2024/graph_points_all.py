@@ -10,13 +10,12 @@ def load_data(filename):
     return None, None
 
 # --- Solución exacta ---
-# x_exact = np.linspace(0, 1, 200)
-# y_exact = np.sqrt(np.exp(x_exact*x_exact))
+x_exact = np.linspace(0, 1, 200)
+y_exact = np.sqrt(np.exp(x_exact*x_exact))
 
 # --- Cargar soluciones numéricas ---
 methods = {
     "Método del Ejercicio": ("method_of_exercise_results.txt", "r", "o"),
-    "Exacta": ("exact_results.txt", "g", "s"),
     "Runge-Kutta 4": ("runge_kutta_4_results.txt", "c", "D")
 }
 
@@ -29,7 +28,7 @@ for label, (filename, color, marker) in methods.items():
         plt.plot(x, y, color=color, marker=marker, linestyle='-', label=label)
 
 # Graficar solución exacta
-# plt.plot(x_exact, y_exact, 'b-', linewidth=2, label="Solución Exacta")
+plt.plot(x_exact, y_exact, 'b-', linewidth=2, label="Solución Exacta")
 
 # --- Estética del gráfico ---
 plt.title("Comparación de Métodos Numéricos vs Solución Exacta", fontsize=14)

@@ -299,9 +299,9 @@ int main(int argc, char const *argv[]) {
             }
             // Save x[i] and Y[i] in runge_kutta_4_results.txt]
             save_in_txt(X, Y, n);
-            save_in_txt2(X, y, n);
+            // save_in_txt2(X, y, n);
             rename("results.txt", "method_of_exercise_results.txt");
-            rename("results2.txt", "exact_results.txt");
+            // rename("results2.txt", "exact_results.txt");
             break;
     }
 
@@ -345,14 +345,14 @@ void check_and_run_graph() {
     int all_exist = 1;
     const char* filenames[] = {
         "method_of_exercise_results.txt",
-        "exact_results.txt",
+        //"exact_results.txt",
         "runge_kutta_4_results.txt"
     };
 
     printf("\nVerifying results of files...\n");
 
     // Verifying existence of each file
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
         FILE *file = fopen(filenames[i], "r");
         if (file == NULL) {
             all_exist = 0;
