@@ -111,7 +111,7 @@ int main(int argc, char const *argv[]) {
                 scanf("%d", &option);
             }
         break;
-        case 2:
+        case 2: {
             // Initialize A and b
             int system_size = 4 * (n - 1);
             for (int i = 0; i < system_size; i++) {
@@ -175,8 +175,8 @@ int main(int argc, char const *argv[]) {
             
         
             // Two boundary conditions: Natural spline (second derivatives = 0 at endpoints)
-            int last_row = system_size - 2;
-            int second_last_row = system_size - 1;
+            int last_row = system_size - 1;
+            int second_last_row = system_size - 2;
 
 
             // Second derivative = 0 at X[0] (first spline)
@@ -209,6 +209,7 @@ int main(int argc, char const *argv[]) {
                 scanf("%d", &option);
             }
             break;
+        }
         default:
             printf("Invalid option. Please try again.\n");
             break;

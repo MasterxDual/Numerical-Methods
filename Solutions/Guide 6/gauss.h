@@ -26,6 +26,11 @@ void gauss_elimination(int n, double a[MAX_SIZE+1][MAX_SIZE+1], double b[MAX_SIZ
                 a[p][m] = a[i][m];
                 a[i][m] = aux;
             }
+            /* for(int m = 0; m < n; m++) {  // Ahora Intercambia TODAS las columnas
+                aux = a[p][m];
+                a[p][m] = a[i][m];
+                a[i][m] = aux;
+            } */
             aux = b[p];
             b[p] = b[i];
             b[i] = aux;
