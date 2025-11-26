@@ -122,6 +122,11 @@ int main(int argc, char const *argv[]) {
         }
         Sr += pow((f_xi - Y[i]), 2);
     }
+
+    if(St < 1e-10) {
+        printf("Cannot divide by zero, St is too small.\n");
+        return 1;
+    }
     
     // Calculate r - correlation coefficient
     r = sqrt((St - Sr) / St);

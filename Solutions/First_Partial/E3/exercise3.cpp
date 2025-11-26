@@ -46,8 +46,8 @@ int main(int argc, char const *argv[]) {
     double sumxy, sumx, sumy, distance;
     double Sr, St, r, average_y, f_xi;
 
-    printf("Enter the degree of the polynomial (degree >= 1): ");
-    scanf("%d", &degree);
+    /* printf("Enter the degree of the polynomial (degree >= 1): ");
+    scanf("%d", &degree); */
 
     // Read data points from file
     if (!read_data_points("data.txt", X, Y, &n)) {
@@ -59,26 +59,11 @@ int main(int argc, char const *argv[]) {
     print_data_points(X, Y, n);
 
     // Verify if we have enough data points
-    if(n < degree) {
+    /* if(n < degree) {
         printf("Error: Not enough data points for the chosen polynomial degree.\n");
         return 1;
-    }
-
-    // Construct the matrix A and vector b for the normal equations
-    /* for(int l = 0; l <= degree; l++) {
-        sumxy = 0.0;
-        for(int i = 0; i < n; i++) {
-            sumxy += Y[i] * pow(X[i], l);
-        }
-        b[l] = sumxy;
-        for(int m = 0; m <= degree; m++) {
-            sumx = 0.0;
-            for(int i = 0; i < n; i++) {
-                sumx += pow(X[i], l + m); 
-            }
-            A[l][m] = sumx;
-        }
     } */
+
     // Se construye la matriz A y el vector b segun la funcion planteada en el ejercicio 3 que depende de un seno y un coseno
     double sum_ysincos;
     double sum_sincos;
@@ -98,17 +83,17 @@ int main(int argc, char const *argv[]) {
     }
 
     // We use the function from gauss.h to solve the system with Gaussian elimination
-    gauss_elimination(degree + 1, A, b, solution);
+    gauss_elimination(2, A, b, solution);
 
     // We copy the solution to a[i] to give relevance to our context
-    for(int i = 0; i <= degree; i++) {
+    for(int i = 0; i <= 1; i++) {
         a[i] = solution[i];
     }
 
     // Print the polynomial coefficients
     printf("------------------SOLUTION------------------\n");
     printf("The solution of the system is:\n");
-    for(int i = 0; i <= degree; i++) {
+    for(int i = 0; i <= 1; i++) {
         printf("a[%d] = %lf\n", i, a[i]);
     }
     
@@ -132,13 +117,15 @@ int main(int argc, char const *argv[]) {
     for(int i = 0; i < n; i++) {
         St += pow((average_y - Y[i]), 2);
     }
+    
+    f_xi = 0.0;
 
     // Calculate Sr - sum of squared residuals
     for(int i = 0; i < n; i++) {
-        f_xi = 0.0;
-        for(int k = 0; k <= degree; k++) {
+        /* for(int k = 0; k <= degree; k++) {
             f_xi += a[k] * pow(X[i], k);
-        }
+        } */
+        f_xi = a[0] * sin(X[i]) + a[1] * cos(X[i]);
         Sr += pow((f_xi - Y[i]), 2);
     }
     
