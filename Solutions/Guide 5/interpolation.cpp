@@ -347,20 +347,24 @@ void lagrange_coefficients(double X[], double Y[], int n, double coeffs[]) {
         coeffs[i] = 0.0;
 
     for (int k = 0; k < n; k++) {
-        double base[MAX_POINTS] = {1.0}; 
+        double base[MAX_POINTS] = {1.0}; // Initial base polynomial is 1
         int degree = 0;
 
         double denom = 1.0;
         for (int i = 0; i < n; i++) {
             if (i == k) continue;
 
-            // Multiplies (x - X[i]) to the base polynomial
-            for (int j = degree; j >= 0; j--)
-                base[j+1] += base[j];
+            // Multiply base * (x - X[i])
+            double new_base[MAX_POINTS] = {0};
+            for (int j = 0; j <= degree; j++) {
+                new_base[j] += base[j] * (-X[i]);     // Constant term
+                new_base[j+1] += base[j];             // x term
+            }
+            // Copy new_base to base
+            for (int j = 0; j <= degree+1; j++) {
+                base[j] = new_base[j];
+            }
             degree++;
-
-            for (int j = degree; j >= 0; j--)
-                base[j] = (j>0 ? base[j-1] : 0) - X[i]*(j>=0?base[j]:0);
 
             denom *= (X[k] - X[i]);
         }
