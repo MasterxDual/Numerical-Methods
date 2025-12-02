@@ -5,7 +5,7 @@
 #define MAX_POINTS 20
 #define MAX_SIZE 100
 
-#include "gauss.h"
+#include "gauss_FIXED.h"
 
 /**
  * Function to read Xi, Yi data pairs from a file
@@ -109,7 +109,6 @@ int main(int argc, char const *argv[]) {
                 // Number of points
                 int n;
 
-
                 // Read data points from file
                 if (!read_data_points("data.txt", X, Y, &n)) {
                     printf("Failed to read data from file. Exiting.\n");
@@ -118,100 +117,121 @@ int main(int argc, char const *argv[]) {
                 // Print the data points
                 print_data_points(X, Y, n);
 
-                // 2. Inicializar A y b
-                for (int i = 0; i < 4*(n-1); i++) {
+                int num_coeffs = 4 * (n - 1);
+
+                for (int i = 0; i < num_coeffs; i++) {
                     b[i] = 0.0;
-                    for (int j = 0; j < 4*(n-1); j++) {
+                    for (int j = 0; j < num_coeffs; j++) {
                         A[i][j] = 0.0;
                     }
                 }
 
-                // We calculate A[4(n-1)][4(n-1)] and b[4(n-1)]
-                // First 2(n-1) equations: Each spline passes through its two endpoints
-                for(int k = 0; k < n-1; k++) {
-                    // Spline k passes through point (X[k], Y[k])
-                    for(int j = 0; j <= 3; j++) {
-                        A[2*k][4*k+j] = pow(X[k], 3-j);
-                    }
-                    b[2*k] = Y[k];
-                
-                    // Spline k passes through point (X[k+1], Y[k+1])
-                    for(int j = 0; j <= 3; j++) {
-                        A[2*k+1][4*k+j] = pow(X[k+1], 3-j);
-                    }
-                    b[2*k+1] = Y[k+1];
+                // 1. Condiciones de interpolación (2 por intervalo)
+                for (int i = 0; i < n-1; i++) {
+                    int interval = i;
+
+                    // Condición en el extremo izquierdo del intervalo
+                    int row = 2*i;
+                    A[row][4*interval] = pow(X[i], 3);
+                    A[row][4*interval+1] = pow(X[i], 2);
+                    A[row][4*interval+2] = X[i];
+                    A[row][4*interval+3] = 1.0;
+                    b[row] = Y[i];
+
+                    // Condición en el extremo derecho del intervalo
+                    row = 2*i + 1;
+                    A[row][4*interval] = pow(X[i+1], 3);
+                    A[row][4*interval+1] = pow(X[i+1], 2);
+                    A[row][4*interval+2] = X[i+1];
+                    A[row][4*interval+3] = 1.0;
+                    b[row] = Y[i+1];
                 }
 
+                // 2. Continuidad de primera derivada en nodos interiores
+                for (int i = 1; i < n-1; i++) {
+                    int row = 2*(n-1) + (i-1);
 
-                // Next n-2 equations: Continuity of first derivatives
-                for(int k = 0; k < n-2; k++) {
-                    int row = 2*(n-1) + k;
-                    // First derivative of spline k at X[k+1]
-                    for(int j = 0; j <= 2; j++) {
-                        A[row][4*k+j] = (3-j) * pow(X[k+1], 2-j);
-                    }
-                    // First derivative of spline k+1 at X[k+1]
-                    for(int j = 0; j <= 2; j++) {
-                        A[row][4*(k+1)+j] = -(3-j) * pow(X[k+1], 2-j);
-                    }
+                    // Derivada del polinomio anterior en X[i]
+                    A[row][4*(i-1)] = 3 * pow(X[i], 2);    // 3a*x²
+                    A[row][4*(i-1)+1] = 2 * X[i];          // 2b*x
+                    A[row][4*(i-1)+2] = 1.0;               // c
+
+                    // Derivada del polinomio actual en X[i] (negativo)
+                    A[row][4*i] = -3 * pow(X[i], 2);
+                    A[row][4*i+1] = -2 * X[i];
+                    A[row][4*i+2] = -1.0;
+
                     b[row] = 0.0;
                 }
 
-                // Next n-2 equations: Continuity of second derivatives
-                for(int k = 0; k < n-2; k++) {
-                    int row = 2*(n-1) + (n-2) + k;
-                    // Second derivative of spline k at X[k+1]
-                    A[row][4*k] = 6 * X[k+1];
-                    A[row][4*k+1] = 2;
-                    // Second derivative of spline k+1 at X[k+1]
-                    A[row][4*(k+1)] = -6 * X[k+1];
-                    A[row][4*(k+1)+1] = -2;
+                // 3. Continuidad de segunda derivada en nodos interiores
+                for (int i = 1; i < n-1; i++) {
+                    int row = 2*(n-1) + (n-2) + (i-1);
+
+                    // Segunda derivada del polinomio anterior en X[i]
+                    A[row][4*(i-1)] = 6 * X[i];    // 6a*x
+                    A[row][4*(i-1)+1] = 2.0;       // 2b
+
+                    // Segunda derivada del polinomio actual en X[i] (negativo)
+                    A[row][4*i] = -6 * X[i];
+                    A[row][4*i+1] = -2.0;
+
                     b[row] = 0.0;
                 }
 
-                // Two boundary conditions: Natural spline (second derivatives = 0 at endpoints)
-                int row1 = 4*(n-1) - 2;
-                int row2 = 4*(n-1) - 1;
+                // 4. Condiciones de frontera naturales (segunda derivada = 0 en extremos)
+                // En x = X[0]
+                int row = num_coeffs - 2;
+                A[row][0] = 6 * X[0];
+                A[row][1] = 2.0;
+                b[row] = 0.0;
 
-                // Second derivative = 0 at X[0] (first spline)
-                A[row1][0] = 6 * X[0];
-                A[row1][1] = 2;
-                b[row1] = 0.0;
+                // En x = X[n-1]
+                row = num_coeffs - 1;
+                A[row][4*(n-2)] = 6 * X[n-1];
+                A[row][4*(n-2)+1] = 2.0;
+                b[row] = 0.0;
 
-                // Second derivative = 0 at X[n-1] (last spline)
-                A[row2][4*(n-2)] = 6 * X[n-1];
-                A[row2][4*(n-2)+1] = 2;
-                b[row2] = 0.0;
-
-                // We use the function from gauss.h to solve the system with Gaussian elimination
-                gauss_elimination(4*(n-1), A, b, solution);
+                // Resolver el sistema
+                gauss_elimination(num_coeffs, A, b, solution);
 
                 // Divide the interval [X[0], X[n-1]] into n-1 subintervals of equal length
                 // h = (X[n - 1] - X[0]) / (n - 1);
+                double start_x = 1.0;
+                double end_x = 2.0;
                 h = 0.1;
+                int num_points = (int)((end_x - start_x) / h) + 1;
 
-                // Calculate X[n] and Y[n] equally spaced
-                for(int i = 0; i < n; i++) {
-                    new_X[i] = X[0] + i * h;
-                    new_Y[i] = evaluate_spline(X, solution, n, new_X[i]);
-                }
 
-                printf("New X and Y values:\n");
-                printf("X values\tY values\n");
-                for(int i = 0; i < n; i++) {
-                    printf("%lf\t%lf\n", new_X[i], new_Y[i]);
+                printf("\nPuntos equiespaciados con h = 0.1:\n");
+                printf("x\t\tf_spline(x)\t\tf_exacto(x)\t\tError\n");
+                printf("------------------------------------------------------------\n");
+
+                
+                for (int i = 0; i < num_points; i++) {
+                    double x = start_x + i * h;
+                    double y_spline = evaluate_spline(X, solution, n, x);
+
+                    // Calcular valor exacto: f(x) = e^(2*sin(x)) * (1 + ln(x))
+                    double y_exact = exp(2 * sin(x)) * (1 + log(x));
+                    double error = fabs(y_exact - y_spline);
+
+                    printf("%.2lf\t\t%.6lf\t\t%.6lf\t\t%.6lf\n", 
+                           x, y_spline, y_exact, error);
+
+                    new_Y[i] = y_spline;
+                    new_X[i] = x;
                 }
-                printf("\n");
                 
                 // Calculate I
-                /* sum = new_Y[0] + new_Y[n - 1];
-                for(int i = 1; i <= n - 2; i++) {
+                sum = new_Y[0] + new_Y[num_points - 1];
+                for(int i = 1; i <= num_points - 2; i++) {
                     sum += 2 * new_Y[i];
                 }
-                sum = ((new_X[n - 1] - new_X[0]) / (2 * (n - 1))) * sum;
+                sum = ((new_X[num_points - 1] - new_X[0]) / (2 * (num_points - 1))) * sum;
 
                 // Print integral using Trapeze with made equally spaced points
-                printf("The integral is: %lf\n", sum); */
+                printf("The integral is: %lf\n", sum);
                 break;
             }
             default:
@@ -293,7 +313,6 @@ int main(int argc, char const *argv[]) {
                 // Number of points
                 int n;
 
-
                 // Read data points from file
                 if (!read_data_points("data.txt", X, Y, &n)) {
                     printf("Failed to read data from file. Exiting.\n");
@@ -302,10 +321,11 @@ int main(int argc, char const *argv[]) {
                 // Print the data points
                 print_data_points(X, Y, n);
 
-                // 2. Inicializar A y b
-                for (int i = 0; i < 4*(n-1); i++) {
+                int num_coeffs = 4 * (n - 1);
+
+                for (int i = 0; i < num_coeffs; i++) {
                     b[i] = 0.0;
-                    for (int j = 0; j < 4*(n-1); j++) {
+                    for (int j = 0; j < num_coeffs; j++) {
                         A[i][j] = 0.0;
                     }
                 }
@@ -318,83 +338,123 @@ int main(int argc, char const *argv[]) {
                     subintervals = n;
                 }
 
-                // We calculate A[4(n-1)][4(n-1)] and b[4(n-1)]
-                // First 2(n-1) equations: Each spline passes through its two endpoints
-                for(int k = 0; k < n-1; k++) {
-                    // Spline k passes through point (X[k], Y[k])
-                    for(int j = 0; j <= 3; j++) {
-                        A[2*k][4*k+j] = pow(X[k], 3-j);
-                    }
-                    b[2*k] = Y[k];
-                
-                    // Spline k passes through point (X[k+1], Y[k+1])
-                    for(int j = 0; j <= 3; j++) {
-                        A[2*k+1][4*k+j] = pow(X[k+1], 3-j);
-                    }
-                    b[2*k+1] = Y[k+1];
+                // 1. Condiciones de interpolación (2 por intervalo)
+                for (int i = 0; i < n-1; i++) {
+                    int interval = i;
+
+                    // Condición en el extremo izquierdo del intervalo
+                    int row = 2*i;
+                    A[row][4*interval] = pow(X[i], 3);
+                    A[row][4*interval+1] = pow(X[i], 2);
+                    A[row][4*interval+2] = X[i];
+                    A[row][4*interval+3] = 1.0;
+                    b[row] = Y[i];
+
+                    // Condición en el extremo derecho del intervalo
+                    row = 2*i + 1;
+                    A[row][4*interval] = pow(X[i+1], 3);
+                    A[row][4*interval+1] = pow(X[i+1], 2);
+                    A[row][4*interval+2] = X[i+1];
+                    A[row][4*interval+3] = 1.0;
+                    b[row] = Y[i+1];
                 }
 
+                // 2. Continuidad de primera derivada en nodos interiores
+                for (int i = 1; i < n-1; i++) {
+                    int row = 2*(n-1) + (i-1);
 
-                // Next n-2 equations: Continuity of first derivatives
-                for(int k = 0; k < n-2; k++) {
-                    int row = 2*(n-1) + k;
-                    // First derivative of spline k at X[k+1]
-                    for(int j = 0; j <= 2; j++) {
-                        A[row][4*k+j] = (3-j) * pow(X[k+1], 2-j);
-                    }
-                    // First derivative of spline k+1 at X[k+1]
-                    for(int j = 0; j <= 2; j++) {
-                        A[row][4*(k+1)+j] = -(3-j) * pow(X[k+1], 2-j);
-                    }
+                    // Derivada del polinomio anterior en X[i]
+                    A[row][4*(i-1)] = 3 * pow(X[i], 2);    // 3a*x²
+                    A[row][4*(i-1)+1] = 2 * X[i];          // 2b*x
+                    A[row][4*(i-1)+2] = 1.0;               // c
+
+                    // Derivada del polinomio actual en X[i] (negativo)
+                    A[row][4*i] = -3 * pow(X[i], 2);
+                    A[row][4*i+1] = -2 * X[i];
+                    A[row][4*i+2] = -1.0;
+
                     b[row] = 0.0;
                 }
 
-                // Next n-2 equations: Continuity of second derivatives
-                for(int k = 0; k < n-2; k++) {
-                    int row = 2*(n-1) + (n-2) + k;
-                    // Second derivative of spline k at X[k+1]
-                    A[row][4*k] = 6 * X[k+1];
-                    A[row][4*k+1] = 2;
-                    // Second derivative of spline k+1 at X[k+1]
-                    A[row][4*(k+1)] = -6 * X[k+1];
-                    A[row][4*(k+1)+1] = -2;
+                // 3. Continuidad de segunda derivada en nodos interiores
+                for (int i = 1; i < n-1; i++) {
+                    int row = 2*(n-1) + (n-2) + (i-1);
+
+                    // Segunda derivada del polinomio anterior en X[i]
+                    A[row][4*(i-1)] = 6 * X[i];    // 6a*x
+                    A[row][4*(i-1)+1] = 2.0;       // 2b
+
+                    // Segunda derivada del polinomio actual en X[i] (negativo)
+                    A[row][4*i] = -6 * X[i];
+                    A[row][4*i+1] = -2.0;
+
                     b[row] = 0.0;
                 }
 
-                // Two boundary conditions: Natural spline (second derivatives = 0 at endpoints)
-                int row1 = 4*(n-1) - 2;
-                int row2 = 4*(n-1) - 1;
+                // 4. Condiciones de frontera naturales (segunda derivada = 0 en extremos)
+                // En x = X[0]
+                int row = num_coeffs - 2;
+                A[row][0] = 6 * X[0];
+                A[row][1] = 2.0;
+                b[row] = 0.0;
 
-                // Second derivative = 0 at X[0] (first spline)
-                A[row1][0] = 6 * X[0];
-                A[row1][1] = 2;
-                b[row1] = 0.0;
+                // En x = X[n-1]
+                row = num_coeffs - 1;
+                A[row][4*(n-2)] = 6 * X[n-1];
+                A[row][4*(n-2)+1] = 2.0;
+                b[row] = 0.0;
 
-                // Second derivative = 0 at X[n-1] (last spline)
-                A[row2][4*(n-2)] = 6 * X[n-1];
-                A[row2][4*(n-2)+1] = 2;
-                b[row2] = 0.0;
-
-                // We use the function from gauss.h to solve the system with Gaussian elimination
-                gauss_elimination(4*(n-1), A, b, solution);
-
+                // Resolver el sistema
+                gauss_elimination(num_coeffs, A, b, solution);
 
                 // Divide the interval [X[0], X[n-1]] into n-1 subintervals of equal length
-                h = (X[n - 1] - X[0]) / subintervals;
+                // h = (X[n - 1] - X[0]) / (n - 1);
+                double start_x = 1.0;
+                double end_x = 2.0;
+                h = 0.1;
+                int num_points = (int)((end_x - start_x) / h) + 1;
+                double exact_Y[MAX_POINTS];
 
-                // Calculate X[n] and Y[n] equally spaced
-                for(int i = 0; i <= subintervals; i++) {
-                    new_X[i] = X[0] + i * h;
-                    new_Y[i] = evaluate_spline(X, solution, n, new_X[i]);
-                }
+
+                printf("\nPuntos equiespaciados con h = 0.1:\n");
+                printf("x\t\tf_spline(x)\t\tf_exacto(x)\t\tError\n");
+                printf("------------------------------------------------------------\n");
+
+                for (int i = 0; i < num_points; i++) {
+                    double x = start_x + i * h;
+                    double y_spline = evaluate_spline(X, solution, n, x);
+
+                    // Calcular valor exacto: f(x) = e^(2*sin(x)) * (1 + ln(x))
+                    double y_exact = exp(2 * sin(x)) * (1 + log(x));
+                    double error = fabs(y_exact - y_spline);
+
+                    printf("%.2lf\t\t%.6lf\t\t%.6lf\t\t%.6lf\n", 
+                           x, y_spline, y_exact, error);
+
+                    new_X[i] = x;
+                    new_Y[i] = y_spline;
+                    exact_Y[i] = y_exact;
+
+                }    
+               
+                subintervals = num_points - 1;
 
                 // Calculate I applying Simpson rule
-                sum = new_Y[0] + new_Y[subintervals];
+                /* sum = new_Y[0] + new_Y[subintervals];
                 for(int i = 1; i < subintervals; i++) {
                     if(i % 2 == 0) {
                         sum += 2 * new_Y[i];
                     } else {
                         sum += 4 * new_Y[i];
+                    }
+                }
+                sum = (h/3) * sum; */
+                sum = exact_Y[0] + exact_Y[subintervals];
+                for(int i = 1; i < subintervals; i++) {
+                    if(i % 2 == 0) {
+                        sum += 2 * exact_Y[i];
+                    } else {
+                        sum += 4 * exact_Y[i];
                     }
                 }
                 sum = (h/3) * sum;
@@ -509,6 +569,7 @@ int read_data_points(const char* filename, double X[], double Y[], int* n) {
     return 1;
 }
 
+
 /* void print_data_points(double X[], double Y[], int n) {
     printf("Data Points:\n");
     printf("=============\n");
@@ -519,7 +580,6 @@ int read_data_points(const char* filename, double X[], double Y[], int* n) {
     }
     printf("\n");
 } */
-
 void print_data_points(double X[], double Y[], int n) {
     printf("Data Points:\n");
     for (int i = 0; i < n; i++) {
@@ -527,6 +587,7 @@ void print_data_points(double X[], double Y[], int n) {
     }
     printf("\n");
 }
+
 
 /**
  * Function to evaluate the cubic spline at a given point x
@@ -536,7 +597,7 @@ void print_data_points(double X[], double Y[], int n) {
  * @param x The x value to evaluate
  * @return The interpolated y value
  */
-double evaluate_spline(double X[], double solution[], int n, double x) {
+/* double evaluate_spline(double X[], double solution[], int n, double x) {
     int k;
 
     // Find the correct spline interval
@@ -560,4 +621,30 @@ double evaluate_spline(double X[], double solution[], int n, double x) {
 
     return y;
 }
+ */
 
+ double evaluate_spline(double X[], double coeffs[], int n, double x) {
+    // Encontrar el intervalo correcto
+    int interval = -1;
+    for (int i = 0; i < n-1; i++) {
+        if (x >= X[i] && x <= X[i+1]) {
+            interval = i;
+            break;
+        }
+    }
+    
+    // Si x está fuera del rango, usar el primer o último intervalo
+    if (interval == -1) {
+        if (x < X[0]) interval = 0;
+        else interval = n-2;
+    }
+    
+    // Calcular coeficientes para este intervalo
+    double a = coeffs[4*interval];
+    double b = coeffs[4*interval+1];
+    double c = coeffs[4*interval+2];
+    double d = coeffs[4*interval+3];
+    
+    // Evaluar polinomio cúbico: a*x³ + b*x² + c*x + d
+    return a*pow(x, 3) + b*pow(x, 2) + c*x + d;
+}
